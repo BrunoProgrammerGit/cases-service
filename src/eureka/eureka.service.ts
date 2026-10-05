@@ -28,7 +28,7 @@ export class EurekaService implements OnApplicationBootstrap, OnApplicationShutd
       },
       eureka: {
         host: process.env.EUREKA_HOST ?? 'localhost',
-        port: Number(process.env.EUREKA_PORT ?? 8761),
+        port: Number(process.env.EUREKA_PORT ?? 8762),
         servicePath: '/eureka/apps/', // ruta que usa el Eureka de Spring
       },
     });
