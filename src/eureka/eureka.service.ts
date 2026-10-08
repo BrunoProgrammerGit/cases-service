@@ -14,9 +14,9 @@ export class EurekaService implements OnApplicationBootstrap, OnApplicationShutd
     this.client = new Eureka({
       instance: {
         app: 'casos-service', // Eureka lo muestra como CASOS-SERVICE
-        instanceId: `casos-service:${port}`,
+        instanceId: `${host}:casos-service:${port}`,
         hostName: host,
-        ipAddr: '127.0.0.1',
+        ipAddr: host,
         port: { $: port, '@enabled': true },
         vipAddress: 'casos-service',
         statusPageUrl: `http://${host}:${port}/docs`,
