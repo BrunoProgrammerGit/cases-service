@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const doc = new DocumentBuilder()
     .setTitle('casos-service')
-    .setDescription('Biblioteca de casos, tablero y validación de HopeDoku')
+    .setDescription('Biblioteca de casos, tablero y validación de Death-Doku')
     .setVersion('1.0')
     .build();
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, doc));
