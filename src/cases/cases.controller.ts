@@ -1,9 +1,11 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CasesService } from './cases.service';
 import { HintQueryDto, ListCasesQueryDto, SolutionDto } from './dto/case.dto';
+import { GatewaySecretGuard } from 'src/common/gateway-secret.guard';
 
 @ApiTags('cases')
+@UseGuards(GatewaySecretGuard)
 @Controller('cases')
 export class CasesController {
     constructor(private readonly service: CasesService) { }

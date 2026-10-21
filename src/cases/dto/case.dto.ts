@@ -50,7 +50,7 @@ export class SolutionDto {
   @IsArray() @ValidateNested({ each: true }) @Type(() => PositionDto)
     positions!: PositionDto[];
 }
-/** Solución completa: solo la envía el administrador al crear el caso. */
+
 export class FullSolutionDto extends SolutionDto {
   @IsString() @IsNotEmpty()
     killerId!: string;
@@ -98,11 +98,10 @@ export class CaseDto extends CaseSummaryDto {
   characters!: CharacterDto[];
   clues!: ClueDto[];
 }
+
 export class ValidationResultDto {
   valid!: boolean;
   killerFound!: boolean;
-  correctCount!: number;
-  total!: number;
 }
 
 export class HintQueryDto {

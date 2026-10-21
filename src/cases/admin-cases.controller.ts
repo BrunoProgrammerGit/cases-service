@@ -3,10 +3,11 @@ import { ApiHeader, ApiTags } from '@nestjs/swagger';
 import { AdminGuard } from '../common/admin.guard';
 import { CasesService } from './cases.service';
 import { CreateCaseDto } from './dto/case.dto';
+import { GatewaySecretGuard } from 'src/common/gateway-secret.guard';
 
 @ApiTags('admin')
 @ApiHeader({ name: 'x-roles', description: 'Lo inyecta el gateway. Para probar en Swagger: ADMIN', required: false })
-@UseGuards(AdminGuard)
+@UseGuards(GatewaySecretGuard, AdminGuard)
 @Controller('admin/cases')
 export class AdminCasesController {
   constructor(private readonly service: CasesService) {}

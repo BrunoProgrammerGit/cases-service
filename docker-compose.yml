@@ -1,14 +1,14 @@
-services:
-  mongo:
-    image: mongo:7
-    container_name: deathdoku-mongo
-    ports:
-      - "27017:27017"
+  casos-service:
+    build: ./casos-service
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: deathdoku2026
-    volumes:
-      - mongo_data:/data/db
+      PORT: 8082
+      MONGO_URI: mongodb://root:${MONGO_PASSWORD}@mongo:27017/casos_db?authSource=admin
+      EUREKA_HOST: eureka-server
+      EUREKA_PORT: 8762
+      SERVICE_HOST: casos-service     # nombre del servicio en la red de Compose
+    expose:
+      - "8082"                        # visible dentro de la red; sin 'ports', no sale al host
 
-volumes:
-  mongo_data:
+  api-gateway:
+    ports:
+      - "8765:8765"                   # único puerto de entrada

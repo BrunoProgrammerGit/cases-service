@@ -72,13 +72,13 @@ export class CasesService {
 
         const expected = doc.solution.positions;
         const submitted = new Map(dto.positions.map((p) => [p.characterId, p]));
-        const correctCount = expected.filter((e) => {
-            const s = submitted.get(e.characterId);
-            return s && s.x === e.x && s.y === e.y;
-        }).length;
+        const valid =
+            submitted.size === expected.length &&
+            expected.every((e) => {
+                const s = submitted.get(e.characterId);
+                return !!s && s.x === e.x && s.y === e.y;
+            });
 
-        const total = expected.length;
-        const valid = correctCount === total && submitted.size === total;
-        return { valid, killerFound: valid, correctCount, total };
+        return { valid, killerFound: valid };
     }
 }
