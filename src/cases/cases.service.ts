@@ -6,6 +6,7 @@ import {
     CaseDto, CaseSummaryDto, CreateCaseDto, HintDto, ListCasesQueryDto, SolutionDto, ValidationResultDto,
 } from './dto/case.dto';
 import { toDetail, toSummary } from './cases.mapper';
+import { validateCaseDefinition } from './case-definition.validator';
 
 @Injectable()
 export class CasesService {
@@ -44,12 +45,14 @@ export class CasesService {
     }
 
     async create(dto: CreateCaseDto): Promise<CaseDto> {
+        this.assertConsistent(dto);
         const created = await this.model.create(dto);
         return toDetail(created.toObject());
     }
 
     async update(id: string, dto: CreateCaseDto): Promise<CaseDto> {
         this.assertId(id);
+        this.assertConsistent(dto);
         const doc = await this.model
             .findByIdAndUpdate(id, { $set: dto }, { new: true, runValidators: true })
             .lean();
@@ -78,7 +81,13 @@ export class CasesService {
                 const s = submitted.get(e.characterId);
                 return !!s && s.x === e.x && s.y === e.y;
             });
+        return valid ? { valid, killerFound: doc.solution.killerId } : { valid };
+    }
 
-        return { valid, killerFound: valid };
+    private assertConsistent(dto: CreateCaseDto) {
+        const errors = validateCaseDefinition(dto);
+        if (errors.length > 0) {
+            throw new BadRequestException({ statusCode: 400, message: 'El caso no es consistente', errors });
+        }
     }
 }

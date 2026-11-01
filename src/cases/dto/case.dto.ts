@@ -1,82 +1,83 @@
 import { Type } from 'class-transformer';
 import {
-  IsArray, IsBoolean, IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateNested,
+  IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateNested,
 } from 'class-validator';
 import { Category, Difficulty } from '../schemas/case.schema';
 
+
 export class CellDto {
   @IsInt() @Min(0)
-    x!: number;
+  x!: number;
   @IsInt() @Min(0)
-    y!: number;
+  y!: number;
   @IsBoolean()
-    occupable!: boolean;
+  occupable!: boolean;
   @IsIn(['ROOM', 'FIXED_OBJECT', 'EMPTY'])
-    type!: string;
+  type!: string;
   @IsOptional() @IsString() name?: string;
 }
 export class CharacterDto {
   @IsString() @IsNotEmpty()
-    id!: string;
+  id!: string;
   @IsString() @IsNotEmpty()
-    name!: string;
+  name!: string;
   @IsIn(['SUSPECT', 'VICTIM'])
-    role!: string;
+  role!: string;
   @IsOptional() @IsString() description?: string;
 }
 export class ClueDto {
   @IsString() @IsNotEmpty()
-    id!: string;
+  id!: string;
   @IsString() @IsNotEmpty()
-    text!: string;
+  text!: string;
 }
 export class HintDto {
   @IsInt() @Min(1)
-    level!: number;
+  level!: number;
   @IsString() @IsNotEmpty()
-    text!: string;
+  text!: string;
 }
 export class PositionDto {
   @IsString() @IsNotEmpty()
-    characterId!: string;
+  characterId!: string;
   @IsInt() @Min(0)
-    x!: number;
+  x!: number;
   @IsInt() @Min(0)
-    y!: number;
+  y!: number;
 }
 
 /** Lo que envía el jugador al validar. */
 export class SolutionDto {
   @IsArray() @ValidateNested({ each: true }) @Type(() => PositionDto)
-    positions!: PositionDto[];
+  positions!: PositionDto[];
 }
 
 export class FullSolutionDto extends SolutionDto {
   @IsString() @IsNotEmpty()
-    killerId!: string;
+  killerId!: string;
 }
 
 export class CreateCaseDto {
   @IsString() @IsNotEmpty()
-    title!: string;
+  title!: string;
   @IsEnum(Category)
-    category!: Category;
+  category!: Category;
   @IsEnum(Difficulty)
-    difficulty!: Difficulty;
+  difficulty!: Difficulty;
   @IsInt() @Min(1)
-    rows!: number;
+  rows!: number;
   @IsInt() @Min(1)
-    columns!: number;
+  columns!: number;
   @IsArray() @ValidateNested({ each: true }) @Type(() => CellDto)
-    cells!: CellDto[];
+  cells!: CellDto[];
   @IsArray() @ValidateNested({ each: true }) @Type(() => CharacterDto)
-    characters!: CharacterDto[];
+  characters!: CharacterDto[];
   @IsArray() @ValidateNested({ each: true }) @Type(() => ClueDto)
-    clues!: ClueDto[];
+  clues!: ClueDto[];
   @IsArray() @ValidateNested({ each: true }) @Type(() => HintDto)
-    hints!: HintDto[];
-  @ValidateNested() @Type(() => FullSolutionDto)
-    solution?: FullSolutionDto;
+  hints!: HintDto[];
+  @IsDefined() @ValidateNested() @Type(() => FullSolutionDto)
+  solution?: FullSolutionDto;
 }
 
 export class ListCasesQueryDto {
@@ -101,7 +102,7 @@ export class CaseDto extends CaseSummaryDto {
 
 export class ValidationResultDto {
   valid!: boolean;
-  killerFound!: boolean;
+  killerFound?: string;
 }
 
 export class HintQueryDto {
