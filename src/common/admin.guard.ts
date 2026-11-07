@@ -6,6 +6,7 @@ const ADMIN = 'ADMIN';
 export class AdminGuard implements CanActivate {
   canActivate(ctx: ExecutionContext): boolean {
     const req = ctx.switchToHttp().getRequest();
+    // x-roles solo es confiable cuando el API Gateway lo reescribe y protege.
     const raw = req.headers['x-roles'];
     const header = Array.isArray(raw) ? raw.join(',') : String(raw ?? '');
     const roles = header

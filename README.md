@@ -31,6 +31,25 @@
 $ npm install
 ```
 
+## Docker Compose
+
+Copia `.env.example` a `.env` y ajusta los valores para tu entorno. En Compose,
+`SERVICE_HOST` debe ser el nombre del contenedor (`casos-service`) para que el
+registro anuncie una dirección resoluble dentro de la red.
+
+```bash
+docker compose up --build
+```
+
+La aplicación queda disponible dentro de la red de Compose en el puerto
+`8082`. El gateway puede usar `http://casos-service:8082`; sus rutas públicas
+incluyen `GET /casos/cases`, mientras que el servicio expone `/health` y
+`/docs`.
+
+`AdminGuard` acepta `x-roles` porque el API Gateway debe reescribir ese
+encabezado después de autenticar la solicitud. No se debe exponer este
+servicio directamente a clientes no confiables.
+
 ## Compile and run the project
 
 ```bash
