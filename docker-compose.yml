@@ -1,14 +1,29 @@
+services:
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-deathdoku2026}
+    volumes:
+      - mongo_data:/data/db
+
   casos-service:
-    build: ./casos-service
+    build: .
+    depends_on:
+      - mongo
     environment:
       PORT: 8082
-      MONGO_URI: mongodb://root:${MONGO_PASSWORD}@mongo:27017/casos_db?authSource=admin
+      MONGO_URI: mongodb://root:${MONGO_PASSWORD:-deathdoku2026}@mongo:27017/casos_db?authSource=admin
       EUREKA_HOST: eureka-server
       EUREKA_PORT: 8762
-      SERVICE_HOST: casos-service     # nombre del servicio en la red de Compose
+      SERVICE_HOST: casos-service
     expose:
-      - "8082"                        # visible dentro de la red; sin 'ports', no sale al host
+      - "8082"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8082/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  api-gateway:
-    ports:
-      - "8765:8765"                   # único puerto de entrada
+volumes:
+  mongo_data:

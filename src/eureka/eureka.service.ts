@@ -10,6 +10,8 @@ export class EurekaService implements OnApplicationBootstrap, OnApplicationShutd
   onApplicationBootstrap() {
     const port = Number(process.env.PORT ?? 8082);
     const host = process.env.SERVICE_HOST ?? 'localhost';
+    const eurekaHost = process.env.EUREKA_HOST ?? 'localhost';
+    const eurekaPort = Number(process.env.EUREKA_PORT ?? 8762);
 
     this.client = new Eureka({
       instance: {
@@ -27,8 +29,8 @@ export class EurekaService implements OnApplicationBootstrap, OnApplicationShutd
         },
       },
       eureka: {
-        host: process.env.EUREKA_HOST ?? 'localhost',
-        port: Number(process.env.EUREKA_PORT ?? 8762),
+        host: eurekaHost,
+        port: eurekaPort,
         servicePath: '/eureka/apps/', // ruta que usa el Eureka de Spring
       },
     });
