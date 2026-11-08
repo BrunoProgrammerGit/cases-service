@@ -50,6 +50,29 @@ incluyen `GET /casos/cases`, mientras que el servicio expone `/health` y
 encabezado después de autenticar la solicitud. No se debe exponer este
 servicio directamente a clientes no confiables.
 
+## Contrato de casos y recursos visuales
+
+Los casos se almacenan en MongoDB como documentos con tablero, personajes,
+pistas y demás datos relacionados embebidos. `GET /cases/:id` devuelve el
+detalle público (dimensiones, casillas, personajes, pistas y referencias
+visuales); `GET /cases` solo devuelve resúmenes. El gateway expone esas rutas
+como `/casos/cases` y `/casos/cases/:id` mediante `StripPrefix`.
+
+El tablero usa coordenadas enteras base cero desde la esquina superior
+izquierda, una casilla por coordenada, y dimensiones máximas de 20 × 20.
+`occupable` es independiente de los visuales: un obstáculo no cambia ese flag.
+Los campos `visuals.floorId`, `cells[].visual.floorId`,
+`cells[].visual.obstacleId` y `characters[].visualId` aceptan solo IDs del
+catálogo `data/case_visual_catalog.gd` del cliente; MongoDB nunca almacena
+imágenes, URLs ni rutas `res://`. El piso general predeterminado es
+`floor.grass.plain`; el fondo predeterminado es `null`. Los casos semilla no
+asignan fondos porque el cliente aún no incluye imágenes de fondo.
+
+Los detalles públicos no incluyen `solution` ni `hints`; las pistas se sirven
+por `/cases/:id/hints` y la solución solo se usa en la validación del caso.
+Los documentos anteriores sin referencias visuales siguen usando los valores
+predeterminados del mapper, sin requerir un backfill.
+
 ## Compile and run the project
 
 ```bash

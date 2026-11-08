@@ -1,8 +1,28 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { DEFAULT_FLOOR_ID } from '../case.constants';
+import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS } from '../visual-catalog';
 
 export enum Category { HOGAR = 'HOGAR', OFICINAS = 'OFICINAS', TRABAJO = 'TRABAJO', TURISTICO = 'TURISTICO' }
 export enum Difficulty { EASY = 'EASY', MEDIUM = 'MEDIUM', HARD = 'HARD' }
+
+@Schema({ _id: false })
+export class CellVisual {
+    @Prop({ type: String, enum: [...FLOOR_IDS], default: undefined })
+    floorId?: string | null;
+    @Prop({ type: String, enum: [...OBSTACLE_IDS], default: null })
+    obstacleId?: string | null;
+}
+export const CellVisualSchema = SchemaFactory.createForClass(CellVisual);
+
+@Schema({ _id: false })
+export class CaseVisuals {
+    @Prop({ type: String, enum: [...BACKGROUND_IDS], default: null })
+    backgroundId?: string | null;
+    @Prop({ type: String, enum: [...FLOOR_IDS], default: DEFAULT_FLOOR_ID })
+    floorId?: string | null;
+}
+export const CaseVisualsSchema = SchemaFactory.createForClass(CaseVisuals);
 
 @Schema({ _id: false })
 export class Cell {
@@ -15,18 +35,22 @@ export class Cell {
     @Prop({ enum: ['ROOM', 'FIXED_OBJECT', 'EMPTY'], default: 'EMPTY' })
     type!: string;
     @Prop() name?: string;
+    @Prop({ type: CellVisualSchema, default: undefined })
+    visual?: CellVisual;
 }
 export const CellSchema = SchemaFactory.createForClass(Cell);
 
 @Schema({ _id: false })
 export class Character {
-    @Prop({ required: true })
+    @Prop({ required: true, trim: true })
     id!: string;
-    @Prop({ required: true })
+    @Prop({ required: true, trim: true })
     name!: string;
     @Prop({ required: true, enum: ['SUSPECT', 'VICTIM'] })
     role!: string;
     @Prop() description?: string;
+    @Prop({ type: String, enum: [...CHARACTER_VISUAL_IDS], default: null })
+    visualId?: string | null;
 }
 export const CharacterSchema = SchemaFactory.createForClass(Character);
 
@@ -80,6 +104,8 @@ export class CaseEntity {
     rows!: number;
     @Prop({ required: true })
     columns!: number;
+    @Prop({ type: CaseVisualsSchema, default: () => ({}) })
+    visuals?: CaseVisuals;
     @Prop({ type: [CellSchema], default: [] })
     cells!: Cell[];
     @Prop({ type: [CharacterSchema], default: [] })
