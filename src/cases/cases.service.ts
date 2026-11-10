@@ -69,6 +69,10 @@ export class CasesService {
 
     async validate(id: string, dto: SolutionDto): Promise<ValidationResultDto> {
         this.assertId(id);
+        const submittedIds = dto.positions.map((p) => p.characterId);
+        if (new Set(submittedIds).size !== submittedIds.length) {
+            throw new BadRequestException('La petición repite identificadores de personaje');
+        }
         const doc = await this.model.findById(id).select('+solution').lean();
         if (!doc) throw new NotFoundException(`Caso ${id} no existe`);
         if (!doc.solution) throw new BadRequestException('El caso no tiene una solución configurada');

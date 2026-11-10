@@ -76,6 +76,13 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Contrato del modelo de casos
+
+Consulta [`docs/case-domain.md`](docs/case-domain.md) para la estructura JSON,
+compatibilidad con casos antiguos, coordenadas, habitaciones, objetos, paredes,
+pistas y validaciones del dominio. El contrato visual opcional se mantiene en
+`death-doku/docs/case-visual-assets.md` como referencia del cliente.
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

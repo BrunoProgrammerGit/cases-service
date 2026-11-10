@@ -14,4 +14,7 @@ export const toDetail = (c: any): CaseDto => ({
   cells: c.cells,
   characters: c.characters,
   clues: c.clues,
+  objects: c.objects,
+  walls: c.walls,
+  visuals: c.visuals,
 });

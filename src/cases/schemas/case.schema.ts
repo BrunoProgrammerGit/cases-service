@@ -15,6 +15,8 @@ export class Cell {
     @Prop({ enum: ['ROOM', 'FIXED_OBJECT', 'EMPTY'], default: 'EMPTY' })
     type!: string;
     @Prop() name?: string;
+    @Prop() roomId?: string;
+    @Prop({ type: Object }) visual?: { floorId?: string; obstacleId?: string | null };
 }
 export const CellSchema = SchemaFactory.createForClass(Cell);
 
@@ -27,6 +29,7 @@ export class Character {
     @Prop({ required: true, enum: ['SUSPECT', 'VICTIM'] })
     role!: string;
     @Prop() description?: string;
+    @Prop() visualId?: string;
 }
 export const CharacterSchema = SchemaFactory.createForClass(Character);
 
@@ -36,8 +39,29 @@ export class Clue {
     id!: string;
     @Prop({ required: true })
     text!: string;
+    @Prop({ enum: ['GENERAL', 'CHARACTER'], default: undefined })
+    scope?: string;
+    @Prop()
+    characterId?: string;
 }
 export const ClueSchema = SchemaFactory.createForClass(Clue);
+
+@Schema({ _id: false })
+export class CaseObject {
+    @Prop({ required: true }) id!: string;
+    @Prop({ required: true }) type!: string;
+    @Prop({ type: [{ x: Number, y: Number }], required: true }) cells!: { x: number; y: number }[];
+    @Prop() name?: string;
+}
+export const CaseObjectSchema = SchemaFactory.createForClass(CaseObject);
+
+@Schema({ _id: false })
+export class Wall {
+    @Prop({ required: true }) x!: number;
+    @Prop({ required: true }) y!: number;
+    @Prop({ required: true, enum: ['NORTH', 'EAST', 'SOUTH', 'WEST'] }) side!: string;
+}
+export const WallSchema = SchemaFactory.createForClass(Wall);
 
 @Schema({ _id: false })
 export class Hint {
@@ -86,6 +110,9 @@ export class CaseEntity {
     characters!: Character[];
     @Prop({ type: [ClueSchema], default: [] })
     clues!: Clue[];
+    @Prop({ type: [CaseObjectSchema], default: undefined }) objects?: CaseObject[];
+    @Prop({ type: [WallSchema], default: undefined }) walls?: Wall[];
+    @Prop({ type: Object }) visuals?: { backgroundId?: string; floorId?: string };
     @Prop({ type: [HintSchema], default: [] })
     hints!: Hint[];
     @Prop({ type: SolutionSchema, select: false }) solution?: Solution; 
