@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CasesModule } from './cases/cases.module';
 import { EurekaService } from './eureka/eureka.service';
 import { HealthController } from './health.controller';
+import { KafkaPingService } from './messaging/kafka-ping.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { HealthController } from './health.controller';
     CasesModule,
   ],
   controllers: [HealthController],
-  providers: [EurekaService],
+  providers: [EurekaService, KafkaPingService],
 })
 export class AppModule {}
