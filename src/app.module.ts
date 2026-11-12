@@ -1,11 +1,11 @@
-// app.module.ts
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CasesModule } from './cases/cases.module';
 import { EurekaService } from './eureka/eureka.service';
 import { HealthController } from './health.controller';
 import { ObservabilityModule } from './observability/observability.module';
+import { KafkaPingService } from './messaging/kafka-ping.service';
 
 @Module({
   imports: [
@@ -20,6 +20,6 @@ import { ObservabilityModule } from './observability/observability.module';
     ObservabilityModule,
   ],
   controllers: [HealthController],
-  providers: [EurekaService],
+  providers: [EurekaService, KafkaPingService],
 })
 export class AppModule {}
