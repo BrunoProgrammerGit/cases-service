@@ -37,7 +37,7 @@ describe('Cases HTTP endpoints (e2e)', () => {
   let app: INestApplication;
   const secret = 'test-only-gateway-secret';
   const model = {
-    find: jest.fn(() => ({ lean: async () => [caseDocument] })),
+    find: jest.fn(() => ({ select: jest.fn().mockReturnThis(), lean: async () => [caseDocument] })),
     findById: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),
       lean: async () => caseDocument,
