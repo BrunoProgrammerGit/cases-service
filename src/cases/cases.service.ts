@@ -20,7 +20,7 @@ export class CasesService {
         const filter: Record<string, string> = {};
         if (q.category) filter.category = q.category;
         if (q.difficulty) filter.difficulty = q.difficulty;
-        const docs = await this.model.find(filter).lean();
+        const docs = await this.model.find(filter).select('_id title category difficulty rows columns').lean();
         return docs.map(toSummary);
     }
 
