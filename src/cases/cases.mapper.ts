@@ -19,6 +19,7 @@ export interface CaseMapperInput {
     occupable: boolean;
     type: string;
     name?: string;
+    roomId?: string;
     visual?: {
       floorId?: string | null;
       obstacleId?: string | null;
@@ -32,6 +33,8 @@ export interface CaseMapperInput {
     visualId?: string | null;
   }>;
   clues: CaseDto['clues'];
+  objects?: CaseDto['objects'];
+  walls?: CaseDto['walls'];
 }
 
 export const toSummary = (c: CaseMapperInput): CaseSummaryDto => ({
@@ -57,6 +60,7 @@ export const toDetail = (c: CaseMapperInput): CaseDto => {
       occupable: cell.occupable,
       type: cell.type,
       name: cell.name,
+      roomId: cell.roomId,
       visual: {
         floorId: cell.visual?.floorId ?? floorId,
         obstacleId: cell.visual?.obstacleId ?? null,
@@ -70,5 +74,7 @@ export const toDetail = (c: CaseMapperInput): CaseDto => {
       visualId: character.visualId ?? null,
     })),
     clues: c.clues,
+    objects: c.objects,
+    walls: c.walls,
   };
 };

@@ -2,10 +2,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { HttpMetricsService } from './observability/http-metrics.service';
+import { createHttpMetricsMiddleware } from './observability/http-metrics.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableShutdownHooks();
+  app.use(createHttpMetricsMiddleware(app.get(HttpMetricsService)));
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
 
   const doc = new DocumentBuilder()
