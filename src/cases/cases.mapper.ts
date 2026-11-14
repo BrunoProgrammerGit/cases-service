@@ -42,6 +42,7 @@ export const toSummary = (c: CaseMapperInput): CaseSummaryDto => ({
   title: c.title,
   category: c.category,
   difficulty: c.difficulty,
+  requiredLevel: c.difficulty === Difficulty.EASY ? 1 : c.difficulty === Difficulty.MEDIUM ? 5 : 10,
   rows: c.rows,
   columns: c.columns,
 });
