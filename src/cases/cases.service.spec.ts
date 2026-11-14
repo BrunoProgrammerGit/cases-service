@@ -116,6 +116,7 @@ describe('CasesService', () => {
           title: definition.title,
           category: definition.category,
           difficulty: definition.difficulty,
+          requiredLevel: 5,
           rows: definition.rows,
           columns: definition.columns,
         },
@@ -134,6 +135,7 @@ describe('CasesService', () => {
       title: definition.title,
       category: definition.category,
       difficulty: definition.difficulty,
+      requiredLevel: 5,
       rows: definition.rows,
       columns: definition.columns,
     });
