@@ -125,6 +125,7 @@ export class CaseSummaryDto {
   title!: string;
   category!: Category;
   difficulty!: Difficulty;
+  requiredLevel!: number;
   rows!: number;
   columns!: number;
 }

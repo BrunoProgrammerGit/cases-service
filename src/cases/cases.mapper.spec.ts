@@ -93,6 +93,7 @@ describe('case mappers', () => {
       title: 'Misterio en la finca',
       category: 'HOGAR',
       difficulty: 'MEDIUM',
+      requiredLevel: 5,
       rows: 1,
       columns: 2,
     });
