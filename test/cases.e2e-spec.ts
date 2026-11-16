@@ -4,18 +4,20 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { jest } from '@jest/globals';
 import request from 'supertest';
+import { CasesUseCases } from '../src/cases/application/cases.usecases';
+import { CASE_REPOSITORY, CaseRepository } from '../src/cases/application/ports/case.repository';
 import { CasesController } from '../src/cases/cases.controller';
-import { CasesService } from '../src/cases/cases.service';
+import { CaseRecord, Category, Difficulty } from '../src/cases/domain/case.model';
 import { GatewaySecretGuard } from '../src/common/gateway-secret.guard';
 
 // The HTTP layer, actual controller/service and gateway guard are real. Only
 // MongoDB is replaced with a deterministic in-memory model double.
 const caseId = '507f1f77bcf86cd799439011';
-const caseDocument = {
-  _id: caseId,
+const caseDocument: CaseRecord = {
+  id: caseId,
   title: 'Caso de prueba',
-  category: 'HOGAR',
-  difficulty: 'EASY',
+  category: Category.HOGAR,
+  difficulty: Difficulty.EASY,
   rows: 2,
   columns: 2,
   cells: [
@@ -36,22 +38,30 @@ const caseDocument = {
 describe('Cases HTTP endpoints (e2e)', () => {
   let app: INestApplication;
   const secret = 'test-only-gateway-secret';
-  const model = {
-    find: jest.fn(() => ({ select: jest.fn().mockReturnThis(), lean: async () => [caseDocument] })),
-    findById: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      lean: async () => caseDocument,
-    })),
+  const cases: jest.Mocked<CaseRepository> = {
+    findAll: jest.fn(async () => [{
+      id: caseId,
+      title: 'Caso de prueba',
+      category: Category.HOGAR,
+      difficulty: Difficulty.EASY,
+      rows: 2,
+      columns: 2,
+    }]),
+    findById: jest.fn(async () => caseDocument),
+    findHints: jest.fn(async () => caseDocument.hints),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
   };
 
   beforeAll(async () => {
-    const service = new CasesService(model as any);
     const moduleRef = await Test.createTestingModule({
       controllers: [CasesController],
       providers: [
+        CasesUseCases,
+        { provide: CASE_REPOSITORY, useValue: cases },
         GatewaySecretGuard,
         { provide: ConfigService, useValue: { get: (key: string) => key === 'GATEWAY_SECRET' ? secret : undefined } },
-        { provide: CasesService, useValue: service },
       ],
     }).compile();
     app = moduleRef.createNestApplication();
@@ -76,7 +86,8 @@ describe('Cases HTTP endpoints (e2e)', () => {
   it('returns case summaries without private solution data', async () => {
     const response = await authorized('get', '/cases').expect(200);
     expect(response.body).toEqual([{
-      id: caseId, title: 'Caso de prueba', category: 'HOGAR', difficulty: 'EASY', rows: 2, columns: 2,
+      id: caseId, title: 'Caso de prueba', category: 'HOGAR', difficulty: 'EASY',
+      requiredLevel: 1, rows: 2, columns: 2,
     }]);
     expect(JSON.stringify(response.body)).not.toContain('solution');
     expect(JSON.stringify(response.body)).not.toContain('hints');
@@ -103,6 +114,7 @@ describe('Cases HTTP endpoints (e2e)', () => {
     await authorized('post', `/cases/${caseId}/validate`).send({ positions: [
       { characterId: 'v', x: 0, y: 0 }, { characterId: 's', x: 0, y: 1 },
     ] }).expect(200).expect({ valid: false });
+    expect(cases.findById).toHaveBeenLastCalledWith(caseId, true);
   });
 
   it('rejects duplicate character IDs in placement submissions', async () => {

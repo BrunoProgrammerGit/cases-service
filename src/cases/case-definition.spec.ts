@@ -1,8 +1,10 @@
 import { SEED_CASES } from './seed/seed-data';
 import { CreateCaseDto } from './dto/case.dto';
-import { validateCaseDefinition } from './case-definition.validator';
-import { toDetail } from './cases.mapper';
-import { CasesService } from './cases.service';
+import { validateCaseDefinition } from './domain/case-definition.policy';
+import { toDetail } from './http/cases.mapper';
+import { CasesUseCases } from './application/cases.usecases';
+import { CaseRepository } from './application/ports/case.repository';
+import { Category, Difficulty } from './domain/case.model';
 
 const copy = (dto: CreateCaseDto): CreateCaseDto => JSON.parse(JSON.stringify(dto));
 const errors = (dto: CreateCaseDto) => validateCaseDefinition(dto);
@@ -80,31 +82,62 @@ describe('case structural model', () => {
   });
 
   it('keeps solution and hints out of public detail mapping', () => {
-    const mapped = toDetail({ _id: 'id', ...SEED_CASES[0], solution: { killerId: 'secret', positions: [] } });
+    const mapped = toDetail({ id: 'id', ...SEED_CASES[0], solution: { killerId: 'secret', positions: [] } });
     expect(mapped).not.toHaveProperty('solution');
     expect(mapped).not.toHaveProperty('hints');
   });
 
   it('rejects duplicate submitted IDs before solution comparison', async () => {
-    const model: any = { findById: jest.fn() };
-    const service = new CasesService(model);
-    await expect(service.validate('507f1f77bcf86cd799439011', { positions: [
+    const cases: jest.Mocked<CaseRepository> = {
+      findAll: jest.fn(),
+      findById: jest.fn(),
+      findHints: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      remove: jest.fn(),
+    };
+    const useCases = new CasesUseCases(cases);
+    await expect(useCases.validate('507f1f77bcf86cd799439011', { positions: [
       { characterId: 'same', x: 0, y: 0 }, { characterId: 'same', x: 1, y: 0 },
     ] })).rejects.toThrow('repite identificadores');
-    expect(model.findById).not.toHaveBeenCalled();
+    expect(cases.findById).not.toHaveBeenCalled();
   });
 
   it('uses the private server solution as the authority for submitted positions', async () => {
-    const doc = { solution: { killerId: 's', positions: [
-      { characterId: 'v', x: 0, y: 0 }, { characterId: 's', x: 1, y: 0 },
-    ] } };
-    const model: any = { findById: jest.fn(() => ({ select: () => ({ lean: async () => doc }) })) };
-    const service = new CasesService(model);
-    await expect(service.validate('507f1f77bcf86cd799439011', { positions: [
+    const doc = {
+      id: '507f1f77bcf86cd799439011',
+      title: 'Fixture',
+      category: Category.HOGAR,
+      difficulty: Difficulty.EASY,
+      rows: 1,
+      columns: 2,
+      cells: [],
+      characters: [],
+      clues: [],
+      hints: [],
+      solution: {
+        killerId: 's',
+        positions: [
+          { characterId: 'v', x: 0, y: 0 },
+          { characterId: 's', x: 1, y: 0 },
+        ],
+      },
+    };
+    const cases: jest.Mocked<CaseRepository> = {
+      findAll: jest.fn(),
+      findById: jest.fn().mockResolvedValue(doc),
+      findHints: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      remove: jest.fn(),
+    };
+    const useCases = new CasesUseCases(cases);
+    await expect(useCases.validate('507f1f77bcf86cd799439011', { positions: [
       { characterId: 'v', x: 0, y: 0 }, { characterId: 's', x: 1, y: 0 },
     ] })).resolves.toEqual({ valid: true, killerFound: 's' });
-    await expect(service.validate('507f1f77bcf86cd799439011', { positions: [
+    await expect(useCases.validate('507f1f77bcf86cd799439011', { positions: [
       { characterId: 'v', x: 0, y: 0 }, { characterId: 's', x: 2, y: 0 },
     ] })).resolves.toEqual({ valid: false });
+    expect(cases.findById).toHaveBeenNthCalledWith(1, '507f1f77bcf86cd799439011', true);
   });
 });

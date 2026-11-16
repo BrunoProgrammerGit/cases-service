@@ -77,6 +77,24 @@ por niveles y no se mezcla con las pistas.
   ocupable. Dos personajes no comparten una celda. La API de validación rechaza
   IDs de personaje repetidos en la petición.
 
+## Contrato de validación
+
+`POST /cases/{caseId}/validate` recibe las posiciones propuestas por el jugador:
+
+```json
+{
+  "positions": [
+    {"characterId":"V1","x":0,"y":0},
+    {"characterId":"S1","x":1,"y":0}
+  ]
+}
+```
+
+La respuesta es `{ "valid": true, "killerFound": "S1" }` cuando todas las
+posiciones coinciden exactamente con la solución almacenada; en caso contrario
+es `{ "valid": false }`. Los IDs de personaje repetidos se rechazan con HTTP
+400. El endpoint nunca devuelve la solución almacenada.
+
 ## Recursos visuales
 
 Los campos opcionales son los definidos por el contrato visual existente:

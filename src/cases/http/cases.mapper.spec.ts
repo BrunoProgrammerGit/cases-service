@@ -1,9 +1,9 @@
-import { toDetail, toSummary } from './cases.mapper';
-import { DEFAULT_FLOOR_ID } from './case.constants';
-import { Category, Difficulty } from './schemas/case.schema';
+import { toCaseFilter, toDetail, toSummary } from './cases.mapper';
+import { DEFAULT_FLOOR_ID } from '../case.constants';
+import { Category, Difficulty } from '../domain/case.model';
 
 const caseDocument = {
-  _id: 'caso-001',
+  id: 'caso-001',
   title: 'Misterio en la finca',
   category: Category.HOGAR,
   difficulty: Difficulty.MEDIUM,
@@ -42,10 +42,15 @@ const caseDocument = {
   ],
   clues: [{ id: 'pista-01', text: 'Una pista' }],
   hints: [{ level: 1, text: 'Una pista protegida' }],
-  solution: { killerId: 'personaje-01' },
+  solution: { killerId: 'personaje-01', positions: [] },
 };
 
 describe('case mappers', () => {
+  it('omits empty case filters instead of querying for missing fields', () => {
+    expect(toCaseFilter({})).toEqual({});
+    expect(toCaseFilter({ category: Category.HOGAR })).toEqual({ category: Category.HOGAR });
+  });
+
   it('maps the complete public detail while preserving cell flags and visual references', () => {
     const detail = toDetail(caseDocument);
 

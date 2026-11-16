@@ -1,7 +1,7 @@
 //Usa funciones auxiliares para no repetir JSON. Cuatro casos, uno por categoría. Son datos de demostración y las posiciones no están ligadas a reglas de juego reales, así que ajústalos a tus reglas
 
 import { CellDto, CharacterDto, CreateCaseDto } from '../dto/case.dto';
-import { Category, Difficulty } from '../schemas/case.schema';
+import { Category, Difficulty } from '../domain/case.model';
 
 const room = (x: number, y: number, name: string): CellDto => ({ x, y, occupable: true, type: 'ROOM', name });
 const obj = (x: number, y: number, name: string): CellDto => ({ x, y, occupable: false, type: 'FIXED_OBJECT', name });

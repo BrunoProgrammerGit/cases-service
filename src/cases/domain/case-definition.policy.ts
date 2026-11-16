@@ -1,12 +1,12 @@
-import { CreateCaseDto } from './dto/case.dto';
-import { MAX_BOARD_DIMENSION } from './case.constants';
-import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS, isCatalogId } from './visual-catalog';
+import { MAX_BOARD_DIMENSION } from '../case.constants';
+import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS, isCatalogId } from '../visual-catalog';
+import { CaseDefinition } from './case.model';
 
 const duplicates = (values: string[]): string[] =>
     [...new Set(values.filter((v, i) => values.indexOf(v) !== i))];
 
 
-export function validateCaseDefinition(dto: CreateCaseDto): string[] {
+export function validateCaseDefinition(dto: CaseDefinition): string[] {
     const errors: string[] = [];
 
     const validDimensions =

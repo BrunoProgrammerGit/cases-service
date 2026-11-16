@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Matches, Max, Min, ValidateIf, ValidateNested,
 } from 'class-validator';
-import { Category, Difficulty } from '../schemas/case.schema';
+import { Category, Difficulty } from '../domain/case.model';
 import { MAX_BOARD_DIMENSION } from '../case.constants';
 import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS } from '../visual-catalog';
 

@@ -1,7 +1,8 @@
+import 'reflect-metadata';
 import { describe, expect, it } from '@jest/globals';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { validateCaseDefinition } from './case-definition.validator';
+import { validateCaseDefinition } from './domain/case-definition.policy';
 import { CreateCaseDto } from './dto/case.dto';
 
 const validCase = (): CreateCaseDto => ({

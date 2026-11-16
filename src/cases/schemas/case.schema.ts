@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Category, Difficulty } from '../domain/case.model';
 import { DEFAULT_FLOOR_ID } from '../case.constants';
 import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS } from '../visual-catalog';
 
-export enum Category { HOGAR = 'HOGAR', OFICINAS = 'OFICINAS', TRABAJO = 'TRABAJO', TURISTICO = 'TURISTICO' }
-export enum Difficulty { EASY = 'EASY', MEDIUM = 'MEDIUM', HARD = 'HARD' }
+export { Category, Difficulty };
 
 @Schema({ _id: false })
 export class CellVisual {
@@ -118,9 +118,9 @@ export const SolutionSchema = SchemaFactory.createForClass(Solution);
 export class CaseEntity {
     @Prop({ required: true })
     title!: string;
-    @Prop({ required: true, enum: Object.values(Category) })
+    @Prop({ type: String, required: true, enum: Object.values(Category) })
     category!: Category;
-    @Prop({ required: true, enum: Object.values(Difficulty) })
+    @Prop({ type: String, required: true, enum: Object.values(Difficulty) })
     difficulty!: Difficulty;
     @Prop({ required: true })
     rows!: number;

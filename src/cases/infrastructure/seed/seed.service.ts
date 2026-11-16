@@ -1,9 +1,9 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CaseDocument, CaseEntity } from '../schemas/case.schema';
-import { SEED_CASES } from './seed-data';
-import { validateCaseDefinition } from '../case-definition.validator';
+import { CaseDocument, CaseEntity } from '../../schemas/case.schema';
+import { SEED_CASES } from '../../seed/seed-data';
+import { validateCaseDefinition } from '../../domain/case-definition.policy';
 
 @Injectable()
 export class SeedService implements OnModuleInit {
