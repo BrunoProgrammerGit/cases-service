@@ -68,6 +68,11 @@ describe('Cases HTTP endpoints (e2e)', () => {
     await request(app.getHttpServer()).get('/cases').expect(403);
   });
 
+  it('refuses to create the gateway guard without a configured secret', () => {
+    expect(() => new GatewaySecretGuard(new ConfigService()))
+      .toThrow('GATEWAY_SECRET debe estar configurado');
+  });
+
   it('returns case summaries without private solution data', async () => {
     const response = await authorized('get', '/cases').expect(200);
     expect(response.body).toEqual([{
