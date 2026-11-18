@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import {
-  IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Matches, Max, Min, ValidateIf, ValidateNested,
+  IsArray, IsBoolean, IsDefined, IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min, ValidateIf, ValidateNested,
 } from 'class-validator';
 import { Category, Difficulty } from '../domain/case.model';
 import { MAX_BOARD_DIMENSION } from '../case.constants';
@@ -28,11 +28,13 @@ export class CaseVisualsDto {
   @IsOptional() @IsString() @IsIn(BACKGROUND_IDS) backgroundId?: string | null;
   @IsOptional() @IsString() @IsIn(FLOOR_IDS) floorId?: string | null;
 }
-export class CaseObjectDto {
-  @IsString() @IsNotEmpty() id!: string;
-  @IsString() @IsNotEmpty() type!: string;
-  @IsArray() @ValidateNested({ each: true }) @Type(() => ObjectCellDto) cells!: ObjectCellDto[];
-  @IsOptional() @IsString() name?: string;
+export class RoomDto {
+  @IsString() @IsNotEmpty()
+  id!: string;
+  @IsString() @IsNotEmpty()
+  name!: string;
+  @IsOptional() @IsString() @IsIn(FLOOR_IDS)
+  floorId?: string | null;
 }
 export class ObjectCellDto {
   @IsInt() @Min(0) x!: number;
@@ -41,7 +43,18 @@ export class ObjectCellDto {
 export class WallDto {
   @IsInt() @Min(0) x!: number;
   @IsInt() @Min(0) y!: number;
-  @IsIn(['NORTH', 'EAST', 'SOUTH', 'WEST']) side!: string;
+  @IsIn(['NORTH', 'SOUTH', 'EAST', 'WEST']) side!: string;
+}
+export class CaseObjectDto {
+  @IsString() @IsNotEmpty()
+  id!: string;
+  @IsString() @IsNotEmpty()
+  type!: string;
+  @IsArray() @ValidateNested({ each: true }) @Type(() => ObjectCellDto)
+  cells!: ObjectCellDto[];
+  @IsOptional() @IsString() name?: string;
+  @IsOptional() @IsString() @IsIn(OBSTACLE_IDS)
+  visualId?: string | null;
 }
 export class CharacterDto {
   @IsString() @IsNotEmpty()
@@ -51,16 +64,20 @@ export class CharacterDto {
   @IsIn(['SUSPECT', 'VICTIM'])
   role!: string;
   @IsOptional() @IsString() description?: string;
-  @IsOptional() @IsString() @IsIn(CHARACTER_VISUAL_IDS) visualId?: string | null;
+  @IsOptional() @IsString() @IsIn(CHARACTER_VISUAL_IDS)
+  visualId?: string | null;
+  @IsOptional() @IsBoolean() is_victim?: boolean;
 }
 export class ClueDto {
   @IsString() @IsNotEmpty()
   id!: string;
   @IsString() @IsNotEmpty()
   text!: string;
-  @IsOptional() @IsIn(['GENERAL', 'CHARACTER']) scope?: string;
+  @IsOptional() @IsIn(['GENERAL', 'CHARACTER'])
+  scope?: string;
   @ValidateIf((o: ClueDto) => o.scope === 'CHARACTER' || o.characterId !== undefined)
-  @IsString() @IsNotEmpty() characterId?: string;
+  @IsString() @IsNotEmpty()
+  characterId?: string;
 }
 export class HintDto {
   @IsInt() @Min(1)
@@ -84,11 +101,17 @@ export class SolutionDto {
 }
 
 export class FullSolutionDto extends SolutionDto {
+  @ValidateIf((o: FullSolutionDto) => !o.murderer_id)
   @IsString() @IsNotEmpty()
-  killerId!: string;
+  killerId?: string;
+  @ValidateIf((o: FullSolutionDto) => !o.killerId)
+  @IsString() @IsNotEmpty()
+  murderer_id?: string;
 }
 
 export class CreateCaseDto {
+  @IsOptional() @IsString()
+  description?: string;
   @IsString() @IsNotEmpty()
   title!: string;
   @IsEnum(Category)
@@ -99,17 +122,24 @@ export class CreateCaseDto {
   rows!: number;
   @IsInt() @Min(1) @Max(MAX_BOARD_DIMENSION)
   columns!: number;
+  @IsOptional() @IsInt() @Min(1)
+  requiredLevel?: number;
   @IsArray() @ValidateNested({ each: true }) @Type(() => CellDto)
   cells!: CellDto[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => RoomDto)
+  rooms?: RoomDto[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => WallDto)
+  walls?: WallDto[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => CaseObjectDto)
+  objects?: CaseObjectDto[];
   @IsArray() @ValidateNested({ each: true }) @Type(() => CharacterDto)
   characters!: CharacterDto[];
   @IsArray() @ValidateNested({ each: true }) @Type(() => ClueDto)
   clues!: ClueDto[];
-  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => CaseObjectDto) objects?: CaseObjectDto[];
-  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => WallDto) walls?: WallDto[];
-  @IsOptional() @ValidateNested() @Type(() => CaseVisualsDto) visuals?: CaseVisualsDto | null;
-  @IsArray() @ValidateNested({ each: true }) @Type(() => HintDto)
-  hints!: HintDto[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => HintDto)
+  hints?: HintDto[];
+  @IsOptional() @ValidateNested() @Type(() => CaseVisualsDto)
+  visuals?: CaseVisualsDto | null;
   @IsDefined() @ValidateNested() @Type(() => FullSolutionDto)
   solution?: FullSolutionDto;
 }
@@ -130,12 +160,14 @@ export class CaseSummaryDto {
   columns!: number;
 }
 export class CaseDto extends CaseSummaryDto {
+  description?: string;
+  visuals!: CaseVisualsDto;
   cells!: CellDto[];
+  rooms!: RoomDto[];
+  walls!: WallDto[];
+  objects!: CaseObjectDto[];
   characters!: CharacterDto[];
   clues!: ClueDto[];
-  objects?: CaseObjectDto[];
-  walls?: WallDto[];
-  visuals?: CaseVisualsDto | null;
 }
 
 export class ValidationResultDto {

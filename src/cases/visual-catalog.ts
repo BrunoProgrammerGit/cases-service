@@ -44,6 +44,19 @@ export const FLOOR_IDS = [
 ] as const;
 
 export const OBSTACLE_IDS = [
+  'obstacle.carpet',
+  'obstacle.carpet.double',
+  'obstacle.bush',
+  'obstacle.box',
+  'obstacle.car',
+  'obstacle.car.double',
+  'obstacle.bookcase',
+  'obstacle.statue',
+  'obstacle.table',
+  'obstacle.table.double',
+  'obstacle.plant',
+  'obstacle.armchair',
+  'obstacle.television',
   'obstacle.target.shooting',
   'obstacle.honeycomb',
   'obstacle.animal.spider',
@@ -66,6 +79,16 @@ export const OBSTACLE_IDS = [
 ] as const;
 
 export const CHARACTER_VISUAL_IDS = [
+  'character.man.hombre1',
+  'character.man.hombre2',
+  'character.man.hombre3',
+  'character.man.hombre4',
+  'character.man.hombre5',
+  'character.woman.mujer1',
+  'character.woman.mujer2',
+  'character.woman.mujer3',
+  'character.woman.mujer4',
+  'character.woman.mujer5',
   'character.man.tile_0070',
   'character.man.tile_0084',
   'character.man.tile_0085',

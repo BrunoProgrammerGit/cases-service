@@ -52,11 +52,14 @@ servicio directamente a clientes no confiables.
 
 ## Contrato de casos y recursos visuales
 
-Los casos se almacenan en MongoDB como documentos con tablero, personajes,
-pistas y demás datos relacionados embebidos. `GET /cases/:id` devuelve el
-detalle público (dimensiones, casillas, personajes, pistas y referencias
-visuales); `GET /cases` solo devuelve resúmenes. El gateway expone esas rutas
-como `/casos/cases` y `/casos/cases/:id` mediante `StripPrefix`.
+Los casos se almacenan en MongoDB como documentos con tablero, salas, paredes,
+objetos, personajes, pistas, ayudas y solución embebidos. La estructura de
+tablero (`cells`, `rooms`, `walls` y `objects`) es compatible con el caso local
+de demostración del cliente. `GET /cases/:id` devuelve el detalle público
+(dimensiones, casillas, salas, paredes, objetos, personajes, pistas y
+referencias visuales); `GET /cases` solo devuelve resúmenes, incluido
+`requiredLevel`. El gateway expone esas rutas como `/casos/cases` y
+`/casos/cases/:id` mediante `StripPrefix`.
 
 El tablero usa coordenadas enteras base cero desde la esquina superior
 izquierda, una casilla por coordenada, y dimensiones máximas de 20 × 20.
@@ -70,6 +73,8 @@ asignan fondos porque el cliente aún no incluye imágenes de fondo.
 
 Los detalles públicos no incluyen `solution` ni `hints`; las pistas se sirven
 por `/cases/:id/hints` y la solución solo se usa en la validación del caso.
+La solución se almacena como `murderer_id` y `positions`; al crear o editar se
+aceptan tanto `murderer_id` como el alias anterior `killerId`.
 Los documentos anteriores sin referencias visuales siguen usando los valores
 predeterminados del mapper, sin requerir un backfill.
 

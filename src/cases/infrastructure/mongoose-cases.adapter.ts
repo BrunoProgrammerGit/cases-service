@@ -5,12 +5,22 @@ import { CaseRepository } from '../application/ports/case.repository';
 import {
   CaseDefinition,
   CaseFilter,
+  CasePosition,
   CaseRecord,
+  CaseSolution,
   CaseSummary,
+  requiredLevelForDifficulty,
 } from '../domain/case.model';
 import { CaseDocument, CaseEntity } from '../schemas/case.schema';
 
-type PersistedCase = CaseDefinition & { _id: Types.ObjectId | string };
+type PersistedCase = Omit<CaseDefinition, 'solution'> & {
+  _id: Types.ObjectId | string;
+  solution?: {
+    killerId?: string;
+    murderer_id?: string;
+    positions: CasePosition[];
+  };
+};
 type PersistedSummary = Omit<CaseSummary, 'id'> & { _id: Types.ObjectId | string };
 
 @Injectable()
@@ -54,13 +64,13 @@ export class MongooseCasesAdapter implements CaseRepository {
   }
 
   async create(definition: CaseDefinition): Promise<CaseRecord> {
-    const created = await this.model.create(definition);
+    const created = await this.model.create(this.toPersistence(definition));
     return this.toRecord(created.toObject());
   }
 
   async update(id: string, definition: CaseDefinition): Promise<CaseRecord | null> {
     const doc = await this.model
-      .findByIdAndUpdate(id, { $set: definition }, { new: true, runValidators: true })
+      .findByIdAndUpdate(id, { $set: this.toPersistence(definition) }, { new: true, runValidators: true })
       .lean<PersistedCase>()
       .exec();
     return doc ? this.toRecord(doc) : null;
@@ -71,8 +81,15 @@ export class MongooseCasesAdapter implements CaseRepository {
   }
 
   private toRecord(doc: PersistedCase): CaseRecord {
+    const killerId = doc.solution?.murderer_id ?? doc.solution?.killerId;
+    const solution: CaseSolution | undefined =
+      doc.solution && killerId
+        ? { killerId, positions: doc.solution.positions }
+        : undefined;
     return {
       id: String(doc._id),
+      description: doc.description,
+      requiredLevel: doc.requiredLevel,
       title: doc.title,
       category: doc.category,
       difficulty: doc.difficulty,
@@ -80,12 +97,29 @@ export class MongooseCasesAdapter implements CaseRepository {
       columns: doc.columns,
       visuals: doc.visuals,
       cells: doc.cells,
+      rooms: doc.rooms ?? [],
       characters: doc.characters,
       clues: doc.clues,
-      objects: doc.objects,
-      walls: doc.walls,
+      objects: doc.objects ?? [],
+      walls: doc.walls ?? [],
       hints: doc.hints,
-      solution: doc.solution,
+      solution,
+    };
+  }
+
+  private toPersistence(definition: CaseDefinition) {
+    return {
+      ...definition,
+      requiredLevel: definition.requiredLevel ?? requiredLevelForDifficulty(definition.difficulty),
+      rooms: definition.rooms ?? [],
+      objects: definition.objects ?? [],
+      walls: definition.walls ?? [],
+      solution: definition.solution
+        ? {
+            murderer_id: definition.solution.killerId,
+            positions: definition.solution.positions,
+          }
+        : undefined,
     };
   }
 }

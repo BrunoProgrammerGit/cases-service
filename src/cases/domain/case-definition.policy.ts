@@ -28,7 +28,7 @@ export function validateCaseDefinition(dto: CaseDefinition): string[] {
     const cells = new Map<string, { occupable: boolean; type: string; name?: string; roomId?: string }>();
     for (const c of dto.cells) {
         const key = `${c.x},${c.y}`;
-        if (c.x >= dto.columns || c.y >= dto.rows) {
+        if (c.x < 0 || c.y < 0 || c.x >= dto.columns || c.y >= dto.rows) {
             errors.push(`La celda (${key}) está fuera del tablero de ${dto.columns} columnas x ${dto.rows} filas`);
         }
         if (cells.has(key)) errors.push(`La celda (${key}) está repetida`);
@@ -42,6 +42,22 @@ export function validateCaseDefinition(dto: CaseDefinition): string[] {
             errors.push(`El obstáculo '${c.visual.obstacleId}' de la celda (${key}) no pertenece al catálogo visual`);
         }
         cells.set(key, c);
+    }
+    const rooms = new Map((dto.rooms ?? []).map((room) => [room.id, room]));
+    duplicates((dto.rooms ?? []).map((room) => room.id))
+        .forEach((id) => errors.push(`El id de sala '${id}' está repetido`));
+    for (const room of dto.rooms ?? []) {
+        if (room.floorId != null && !isCatalogId(room.floorId, FLOOR_IDS)) {
+            errors.push(`El piso '${room.floorId}' de la sala '${room.id}' no pertenece al catálogo visual`);
+        }
+    }
+    for (const cell of dto.cells) {
+        if (cell.roomId) {
+            if (cell.type !== 'ROOM') errors.push(`La celda (${cell.x},${cell.y}) define roomId pero no es ROOM`);
+            if (dto.rooms !== undefined && !rooms.has(cell.roomId)) {
+                errors.push(`La celda (${cell.x},${cell.y}) referencia la sala '${cell.roomId}' inexistente`);
+            }
+        }
     }
     if (validDimensions) {
         if (dto.cells.length !== dto.rows * dto.columns) {
@@ -60,7 +76,6 @@ export function validateCaseDefinition(dto: CaseDefinition): string[] {
     // Legacy ROOM cells use their visible name as a stable grouping fallback.
     const roomGroups = new Map<string, string[]>();
     for (const [key, cell] of cells) {
-        if (cell.roomId && cell.type !== 'ROOM') errors.push(`La celda (${key}) define roomId pero no es ROOM`);
         const group = cell.roomId ? `id:${cell.roomId}` : (cell.type === 'ROOM' && cell.name ? `legacy:${cell.name}` : undefined);
         if (group) roomGroups.set(group, [...(roomGroups.get(group) ?? []), key]);
     }
@@ -79,6 +94,9 @@ export function validateCaseDefinition(dto: CaseDefinition): string[] {
     const objectIds = (dto.objects ?? []).map((o) => o.id);
     duplicates(objectIds).forEach((id) => errors.push(`El id de objeto '${id}' está repetido`));
     for (const object of dto.objects ?? []) {
+        if (object.visualId != null && !isCatalogId(object.visualId, OBSTACLE_IDS)) {
+            errors.push(`El visual '${object.visualId}' del objeto '${object.id}' no pertenece al catálogo visual`);
+        }
         if (!object.cells.length) errors.push(`El objeto '${object.id}' debe ocupar al menos una celda`);
         const objectCells = new Set<string>();
         for (const p of object.cells) {
@@ -93,7 +111,14 @@ export function validateCaseDefinition(dto: CaseDefinition): string[] {
         const dx = wall.side === 'EAST' ? 1 : wall.side === 'WEST' ? -1 : 0;
         const dy = wall.side === 'SOUTH' ? 1 : wall.side === 'NORTH' ? -1 : 0;
         const nx = wall.x + dx, ny = wall.y + dy;
-        if (!cells.has(`${wall.x},${wall.y}`) || !cells.has(`${nx},${ny}`)) {
+        if (
+            wall.x < 0 || wall.y < 0 || wall.x >= dto.columns || wall.y >= dto.rows ||
+            !cells.has(`${wall.x},${wall.y}`)
+        ) {
+            errors.push(`El muro (${wall.x},${wall.y},${wall.side}) referencia una celda inexistente`);
+            continue;
+        }
+        if (nx >= 0 && ny >= 0 && nx < dto.columns && ny < dto.rows && !cells.has(`${nx},${ny}`)) {
             errors.push(`El muro (${wall.x},${wall.y},${wall.side}) debe separar dos celdas existentes`);
             continue;
         }
@@ -134,9 +159,14 @@ export function validateCaseDefinition(dto: CaseDefinition): string[] {
         return errors;
     }
 
-    const killer = dto.characters.find((c) => c.id === solution.killerId);
+    const killerId = solution.killerId;
+    if (!killerId) {
+        errors.push('Falta el identificador del asesino');
+        return errors;
+    }
+    const killer = dto.characters.find((c) => c.id === killerId);
     if (!killer) {
-        errors.push(`El asesino '${solution.killerId}' no corresponde a ningún personaje`);
+        errors.push(`El asesino '${killerId}' no corresponde a ningún personaje`);
     } else if (killer.role !== 'SUSPECT') {
         errors.push(`El asesino '${killer.id}' debe ser un sospechoso, no la víctima`);
     }

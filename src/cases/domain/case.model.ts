@@ -11,6 +11,9 @@ export enum Difficulty {
   HARD = 'HARD',
 }
 
+export const requiredLevelForDifficulty = (difficulty: Difficulty): number =>
+  difficulty === Difficulty.EASY ? 1 : difficulty === Difficulty.MEDIUM ? 5 : 10;
+
 export interface CasePosition {
   characterId: string;
   x: number;
@@ -23,11 +26,18 @@ export interface CaseSolution {
 }
 
 export interface CaseDefinition {
+  description?: string;
+  requiredLevel?: number;
   title: string;
   category: Category;
   difficulty: Difficulty;
   rows: number;
   columns: number;
+  rooms?: Array<{
+    id: string;
+    name: string;
+    floorId?: string | null;
+  }>;
   visuals?: {
     backgroundId?: string | null;
     floorId?: string | null;
@@ -50,6 +60,7 @@ export interface CaseDefinition {
     role: string;
     description?: string;
     visualId?: string | null;
+    is_victim?: boolean;
   }>;
   clues: Array<{
     id: string;
@@ -62,6 +73,7 @@ export interface CaseDefinition {
     type: string;
     cells: Array<{ x: number; y: number }>;
     name?: string;
+    visualId?: string | null;
   }>;
   walls?: Array<{
     x: number;

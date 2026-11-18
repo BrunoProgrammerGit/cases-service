@@ -1,4 +1,9 @@
-import { CaseDefinition, CaseRecord, CaseSummary, Difficulty } from '../domain/case.model';
+import {
+  CaseDefinition,
+  CaseRecord,
+  CaseSummary,
+  requiredLevelForDifficulty,
+} from '../domain/case.model';
 import { DEFAULT_FLOOR_ID } from '../case.constants';
 import {
   CaseDto,
@@ -14,7 +19,7 @@ export const toSummary = (c: CaseSummary): CaseSummaryDto => ({
   title: c.title,
   category: c.category,
   difficulty: c.difficulty,
-  requiredLevel: c.difficulty === Difficulty.EASY ? 1 : c.difficulty === Difficulty.MEDIUM ? 5 : 10,
+  requiredLevel: requiredLevelForDifficulty(c.difficulty),
   rows: c.rows,
   columns: c.columns,
 });
@@ -23,6 +28,7 @@ export const toDetail = (c: CaseRecord): CaseDto => {
   const floorId = c.visuals?.floorId ?? DEFAULT_FLOOR_ID;
   return {
     ...toSummary(c),
+    description: c.description,
     visuals: {
       backgroundId: c.visuals?.backgroundId ?? null,
       floorId,
@@ -45,33 +51,51 @@ export const toDetail = (c: CaseRecord): CaseDto => {
       role: character.role,
       description: character.description,
       visualId: character.visualId ?? null,
+      is_victim: character.is_victim,
     })),
     clues: c.clues.map((clue) => ({ ...clue })),
-    objects: c.objects?.map((object) => ({ ...object, cells: object.cells.map((cell) => ({ ...cell })) })),
-    walls: c.walls?.map((wall) => ({ ...wall })),
+    rooms: (c.rooms ?? []).map((room) => ({ ...room })),
+    objects: (c.objects ?? []).map((object) => ({
+      ...object,
+      cells: object.cells.map((cell) => ({ ...cell })),
+    })),
+    walls: (c.walls ?? []).map((wall) => ({ ...wall })),
   };
 };
 
-export const toCaseDefinition = (dto: CreateCaseDto): CaseDefinition => ({
-  title: dto.title,
-  category: dto.category,
-  difficulty: dto.difficulty,
-  rows: dto.rows,
-  columns: dto.columns,
-  visuals: dto.visuals,
-  cells: dto.cells.map((cell) => ({ ...cell, visual: cell.visual ? { ...cell.visual } : cell.visual })),
-  characters: dto.characters.map((character) => ({ ...character })),
-  clues: dto.clues.map((clue) => ({ ...clue })),
-  objects: dto.objects?.map((object) => ({ ...object, cells: object.cells.map((cell) => ({ ...cell })) })),
-  walls: dto.walls?.map((wall) => ({ ...wall })),
-  hints: dto.hints.map((hint) => ({ ...hint })),
-  solution: dto.solution
-    ? {
-        killerId: dto.solution.killerId,
-        positions: dto.solution.positions.map((position) => ({ ...position })),
-      }
-    : undefined,
-});
+export const toCaseDefinition = (dto: CreateCaseDto): CaseDefinition => {
+  const solutionId = dto.solution?.murderer_id || dto.solution?.killerId;
+  return {
+    description: dto.description,
+    requiredLevel: dto.requiredLevel,
+    title: dto.title,
+    category: dto.category,
+    difficulty: dto.difficulty,
+    rows: dto.rows,
+    columns: dto.columns,
+    visuals: dto.visuals,
+    rooms: dto.rooms?.map((room) => ({ ...room })),
+    cells: dto.cells.map((cell) => ({
+      ...cell,
+      visual: cell.visual ? { ...cell.visual } : cell.visual,
+    })),
+    characters: dto.characters.map((character) => ({ ...character })),
+    clues: dto.clues.map((clue) => ({ ...clue })),
+    objects: dto.objects?.map((object) => ({
+      ...object,
+      cells: object.cells.map((cell) => ({ ...cell })),
+    })),
+    walls: dto.walls?.map((wall) => ({ ...wall })),
+    hints: (dto.hints ?? []).map((hint) => ({ ...hint })),
+    solution:
+      dto.solution && solutionId
+        ? {
+            killerId: solutionId,
+            positions: dto.solution.positions.map((position) => ({ ...position })),
+          }
+        : undefined,
+  };
+};
 
 export const toCaseFilter = (query: ListCasesQueryDto): CaseFilter => {
   const filter: CaseFilter = {};
