@@ -1,21 +1,20 @@
 //Usa funciones auxiliares para no repetir JSON. Cuatro casos, uno por categoría. Son datos de demostración y las posiciones no están ligadas a reglas de juego reales, así que ajústalos a tus reglas
 
-import { CellDto, CharacterDto, CreateCaseDto } from '../dto/case.dto';
-import { Category, Difficulty } from '../schemas/case.schema';
+import { CaseDefinition, Category, Difficulty } from '../domain/case.model';
 
-const room = (x: number, y: number, name: string): CellDto => ({ x, y, occupable: true, type: 'ROOM', name });
-const obj = (x: number, y: number, name: string): CellDto => ({ x, y, occupable: false, type: 'FIXED_OBJECT', name });
-const empty = (x: number, y: number): CellDto => ({ x, y, occupable: false, type: 'EMPTY' });
-const victim = (name: string, description: string): CharacterDto => ({ id: 'V1', name, role: 'VICTIM', description });
-const suspect = (n: number, name: string, description: string): CharacterDto => ({ id: `S${n}`, name, role: 'SUSPECT', description });
+const room = (x: number, y: number, name: string): CaseDefinition['cells'][number] => ({ x, y, occupable: true, type: 'ROOM', name });
+const obj = (x: number, y: number, name: string): CaseDefinition['cells'][number] => ({ x, y, occupable: false, type: 'FIXED_OBJECT', name });
+const empty = (x: number, y: number): CaseDefinition['cells'][number] => ({ x, y, occupable: false, type: 'EMPTY' });
+const victim = (name: string, description: string): CaseDefinition['characters'][number] => ({ id: 'V1', name, role: 'VICTIM', description });
+const suspect = (n: number, name: string, description: string): CaseDefinition['characters'][number] => ({ id: `S${n}`, name, role: 'SUSPECT', description });
 
 type Pos = [string, number, number];
 
 function buildCase(
   title: string, category: Category, difficulty: Difficulty,
-  cells: CellDto[], characters: CharacterDto[],
+  cells: CaseDefinition['cells'], characters: CaseDefinition['characters'],
   clues: string[], hints: string[], killerId: string, positions: Pos[],
-): CreateCaseDto {
+): CaseDefinition {
   return {
     title, category, difficulty, rows: 3, columns: 3, cells, characters,
     clues: clues.map((text, i) => ({ id: `C${i + 1}`, text })),
@@ -24,7 +23,7 @@ function buildCase(
   };
 }
 
-export const SEED_CASES: CreateCaseDto[] = [
+export const SEED_CASES: CaseDefinition[] = [
   buildCase(
     'Muerte en la cocina', Category.HOGAR, Difficulty.EASY,
     [room(0, 0, 'Cocina'), room(1, 0, 'Sala'), obj(2, 0, 'Nevera'),

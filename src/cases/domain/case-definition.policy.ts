@@ -1,12 +1,12 @@
-import { CreateCaseDto } from './dto/case.dto';
-import { MAX_BOARD_DIMENSION } from './case.constants';
-import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS, isCatalogId } from './visual-catalog';
+import { MAX_BOARD_DIMENSION } from '../case.constants';
+import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS, isCatalogId } from '../visual-catalog';
+import { CaseDefinition } from './case.model';
 
 const duplicates = (values: string[]): string[] =>
     [...new Set(values.filter((v, i) => values.indexOf(v) !== i))];
 
 
-export function validateCaseDefinition(dto: CreateCaseDto): string[] {
+export function validateCaseDefinition(dto: CaseDefinition): string[] {
     const errors: string[] = [];
 
     const validDimensions =
@@ -28,8 +28,7 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
     const cells = new Map<string, { occupable: boolean; type: string; name?: string; roomId?: string }>();
     for (const c of dto.cells) {
         const key = `${c.x},${c.y}`;
-        if (!Number.isInteger(c.x) || !Number.isInteger(c.y) || c.x < 0 || c.y < 0 ||
-            c.x >= dto.columns || c.y >= dto.rows) {
+        if (c.x < 0 || c.y < 0 || c.x >= dto.columns || c.y >= dto.rows) {
             errors.push(`La celda (${key}) está fuera del tablero de ${dto.columns} columnas x ${dto.rows} filas`);
         }
         if (cells.has(key)) errors.push(`La celda (${key}) está repetida`);
@@ -45,29 +44,18 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
         cells.set(key, c);
     }
     const rooms = new Map((dto.rooms ?? []).map((room) => [room.id, room]));
-    for (const cell of dto.cells) {
-        if (cell.roomId && !rooms.has(cell.roomId)) {
-            errors.push(`La celda (${cell.x},${cell.y}) referencia la sala '${cell.roomId}' inexistente`);
-        }
-    }
     duplicates((dto.rooms ?? []).map((room) => room.id))
         .forEach((id) => errors.push(`El id de sala '${id}' está repetido`));
-    for (const wall of dto.walls ?? []) {
-        if (wall.x >= dto.columns || wall.y >= dto.rows) {
-            errors.push(`La pared (${wall.x},${wall.y}) está fuera del tablero`);
+    for (const room of dto.rooms ?? []) {
+        if (room.floorId != null && !isCatalogId(room.floorId, FLOOR_IDS)) {
+            errors.push(`El piso '${room.floorId}' de la sala '${room.id}' no pertenece al catálogo visual`);
         }
     }
-    duplicates((dto.walls ?? []).map((wall) => `${wall.x},${wall.y},${wall.side}`))
-        .forEach((wall) => errors.push(`La pared '${wall}' está repetida`));
-    duplicates((dto.objects ?? []).map((object) => object.id))
-        .forEach((id) => errors.push(`El id de objeto '${id}' está repetido`));
-    for (const object of dto.objects ?? []) {
-        if (object.visualId != null && !isCatalogId(object.visualId, OBSTACLE_IDS)) {
-            errors.push(`El visual '${object.visualId}' del objeto '${object.id}' no pertenece al catálogo visual`);
-        }
-        for (const coordinate of object.cells) {
-            if (coordinate.x >= dto.columns || coordinate.y >= dto.rows) {
-                errors.push(`El objeto '${object.id}' tiene una celda fuera del tablero`);
+    for (const cell of dto.cells) {
+        if (cell.roomId) {
+            if (cell.type !== 'ROOM') errors.push(`La celda (${cell.x},${cell.y}) define roomId pero no es ROOM`);
+            if (dto.rooms !== undefined && !rooms.has(cell.roomId)) {
+                errors.push(`La celda (${cell.x},${cell.y}) referencia la sala '${cell.roomId}' inexistente`);
             }
         }
     }
@@ -75,11 +63,68 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
         if (dto.cells.length !== dto.rows * dto.columns) {
             errors.push(`El tablero debe tener exactamente ${dto.rows * dto.columns} casillas (hay ${dto.cells.length})`);
         }
+        if (cells.size !== dto.rows * dto.columns) {
+            errors.push(`El tablero debe tener ${dto.rows * dto.columns} celdas distintas (hay ${cells.size})`);
+        }
         for (let y = 0; y < dto.rows; y++) {
             for (let x = 0; x < dto.columns; x++) {
                 if (!cells.has(`${x},${y}`)) errors.push(`Falta la casilla (${x},${y})`);
             }
         }
+    }
+
+    // Legacy ROOM cells use their visible name as a stable grouping fallback.
+    const roomGroups = new Map<string, string[]>();
+    for (const [key, cell] of cells) {
+        const group = cell.roomId ? `id:${cell.roomId}` : (cell.type === 'ROOM' && cell.name ? `legacy:${cell.name}` : undefined);
+        if (group) roomGroups.set(group, [...(roomGroups.get(group) ?? []), key]);
+    }
+    for (const [roomId, roomCells] of roomGroups) {
+        const visited = new Set<string>([roomCells[0]]);
+        const queue = [roomCells[0]];
+        while (queue.length) {
+            const [x, y] = queue.shift()!.split(',').map(Number);
+            for (const key of [`${x + 1},${y}`, `${x - 1},${y}`, `${x},${y + 1}`, `${x},${y - 1}`]) {
+                if (roomCells.includes(key) && !visited.has(key)) { visited.add(key); queue.push(key); }
+            }
+        }
+        if (visited.size !== roomCells.length) errors.push(`La habitación '${roomId}' no forma una región conectada`);
+    }
+
+    const objectIds = (dto.objects ?? []).map((o) => o.id);
+    duplicates(objectIds).forEach((id) => errors.push(`El id de objeto '${id}' está repetido`));
+    for (const object of dto.objects ?? []) {
+        if (object.visualId != null && !isCatalogId(object.visualId, OBSTACLE_IDS)) {
+            errors.push(`El visual '${object.visualId}' del objeto '${object.id}' no pertenece al catálogo visual`);
+        }
+        if (!object.cells.length) errors.push(`El objeto '${object.id}' debe ocupar al menos una celda`);
+        const objectCells = new Set<string>();
+        for (const p of object.cells) {
+            const key = `${p.x},${p.y}`;
+            if (!cells.has(key)) errors.push(`El objeto '${object.id}' referencia la celda (${key}) inexistente`);
+            if (objectCells.has(key)) errors.push(`El objeto '${object.id}' repite la celda (${key})`);
+            objectCells.add(key);
+        }
+    }
+    const wallKeys = new Set<string>();
+    for (const wall of dto.walls ?? []) {
+        const dx = wall.side === 'EAST' ? 1 : wall.side === 'WEST' ? -1 : 0;
+        const dy = wall.side === 'SOUTH' ? 1 : wall.side === 'NORTH' ? -1 : 0;
+        const nx = wall.x + dx, ny = wall.y + dy;
+        if (
+            wall.x < 0 || wall.y < 0 || wall.x >= dto.columns || wall.y >= dto.rows ||
+            !cells.has(`${wall.x},${wall.y}`)
+        ) {
+            errors.push(`El muro (${wall.x},${wall.y},${wall.side}) referencia una celda inexistente`);
+            continue;
+        }
+        if (nx >= 0 && ny >= 0 && nx < dto.columns && ny < dto.rows && !cells.has(`${nx},${ny}`)) {
+            errors.push(`El muro (${wall.x},${wall.y},${wall.side}) debe separar dos celdas existentes`);
+            continue;
+        }
+        const edge = [`${wall.x},${wall.y}`, `${nx},${ny}`].sort().join('|');
+        if (wallKeys.has(edge)) errors.push(`El borde entre (${wall.x},${wall.y}) y (${nx},${ny}) está repetido`);
+        wallKeys.add(edge);
     }
 
     const ids = dto.characters.map((c) => c.id);
@@ -100,11 +145,10 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
 
     duplicates(dto.clues.map((c) => c.id)).forEach((id) => errors.push(`El id de pista '${id}' está repetido`));
     for (const clue of dto.clues) {
-        if (clue.scope === 'CHARACTER' && !dto.characters.some((c) => c.id === clue.characterId)) {
-            errors.push(`La pista '${clue.id}' referencia un personaje inexistente`);
-        }
+        if (clue.scope === 'CHARACTER' && !ids.includes(clue.characterId ?? '')) errors.push(`La pista '${clue.id}' referencia un personaje inexistente`);
+        if (clue.scope !== 'CHARACTER' && clue.characterId) errors.push(`La pista '${clue.id}' solo puede incluir characterId con scope CHARACTER`);
     }
-    const levels = (dto.hints ?? []).map((h) => h.level).sort((a, b) => a - b);
+    const levels = dto.hints.map((h) => h.level).sort((a, b) => a - b);
     if (levels.some((l, i) => l !== i + 1)) {
         errors.push(`Los niveles de ayuda deben ser consecutivos desde 1 (recibidos: ${levels.join(', ')})`);
     }
@@ -115,7 +159,7 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
         return errors;
     }
 
-    const killerId = solution.murderer_id ?? solution.killerId;
+    const killerId = solution.killerId;
     if (!killerId) {
         errors.push('Falta el identificador del asesino');
         return errors;

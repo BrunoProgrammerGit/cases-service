@@ -1,8 +1,13 @@
+import 'reflect-metadata';
 import { describe, expect, it } from '@jest/globals';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { validateCaseDefinition } from './case-definition.validator';
+import { validateCaseDefinition } from './domain/case-definition.policy';
 import { CreateCaseDto } from './dto/case.dto';
+import { toCaseDefinition } from './http/cases.mapper';
+
+const validateDefinition = (dto: CreateCaseDto) =>
+  validateCaseDefinition(toCaseDefinition(dto));
 
 const validCase = (): CreateCaseDto => ({
   title: 'Caso de prueba',
@@ -52,7 +57,7 @@ describe('validateCaseDefinition', () => {
   it('accepts a complete grid and keeps an occupable cell occupable despite its obstacle', () => {
     const definition = validCase();
 
-    expect(validateCaseDefinition(definition)).toEqual([]);
+    expect(validateDefinition(definition)).toEqual([]);
     expect(definition.cells[0].occupable).toBe(true);
     expect(definition.cells[0].visual?.obstacleId).toBe(
       'obstacle.tree.tile_0028',
@@ -67,7 +72,7 @@ describe('validateCaseDefinition', () => {
       { x: 0, y: 0, occupable: true, type: 'ROOM' },
     ];
 
-    const errors = validateCaseDefinition(definition);
+    const errors = validateDefinition(definition);
 
     expect(errors).toEqual(
       expect.arrayContaining([
@@ -82,7 +87,7 @@ describe('validateCaseDefinition', () => {
     const definition = validCase();
     definition.cells.pop();
 
-    expect(validateCaseDefinition(definition)).toContain(
+    expect(validateDefinition(definition)).toContain(
       'El tablero debe tener exactamente 4 casillas (hay 3)',
     );
   });
@@ -94,7 +99,7 @@ describe('validateCaseDefinition', () => {
     definition.cells[0].visual = { obstacleId: 'obstacle.not-real' };
     definition.characters[0].visualId = 'character.not-real';
 
-    const errors = validateCaseDefinition(definition);
+    const errors = validateDefinition(definition);
 
     expect(errors).toEqual(
       expect.arrayContaining([
@@ -111,7 +116,7 @@ describe('validateCaseDefinition', () => {
     definition.characters[1].id = definition.characters[0].id;
     definition.characters[1].name = ' elena cruz ';
 
-    const errors = validateCaseDefinition(definition);
+    const errors = validateDefinition(definition);
 
     expect(errors).toEqual(
       expect.arrayContaining([
@@ -139,9 +144,11 @@ describe('validateCaseDefinition', () => {
     definition.rooms = [
       { id: 'room-1', name: 'Biblioteca', floorId: 'floor.soil.center' },
     ];
-    definition.cells.forEach((cell) => {
-      cell.roomId = 'room-1';
-    });
+    definition.cells
+      .filter((cell) => cell.type === 'ROOM')
+      .forEach((cell) => {
+        cell.roomId = 'room-1';
+      });
     definition.walls = [{ x: 0, y: 0, side: 'NORTH' }];
     definition.objects = [
       {
@@ -173,6 +180,6 @@ describe('validateCaseDefinition', () => {
     const dto = plainToInstance(CreateCaseDto, definition);
 
     expect(await validate(dto)).toHaveLength(0);
-    expect(validateCaseDefinition(dto)).toEqual([]);
+    expect(validateDefinition(dto)).toEqual([]);
   });
 });

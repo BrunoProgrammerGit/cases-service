@@ -36,7 +36,7 @@ describe('CaseSchema visual fields', () => {
         {
           id: 'personaje-01',
           name: 'Elena Cruz',
-          role: 'SUSPECT',
+          role: 'VICTIM',
           visualId: 'character.woman.tile_0082',
           is_victim: true,
         },
