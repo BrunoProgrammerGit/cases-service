@@ -133,4 +133,46 @@ describe('validateCaseDefinition', () => {
       errors.find((error) => error.property === 'characters')?.children?.length,
     ).toBeGreaterThan(0);
   });
+
+  it('accepts offline-case structures and murderer_id without requiring hints', async () => {
+    const definition = validCase();
+    definition.rooms = [
+      { id: 'room-1', name: 'Biblioteca', floorId: 'floor.soil.center' },
+    ];
+    definition.cells.forEach((cell) => {
+      cell.roomId = 'room-1';
+    });
+    definition.walls = [{ x: 0, y: 0, side: 'NORTH' }];
+    definition.objects = [
+      {
+        id: 'bookcase-1',
+        type: 'BOOKCASE',
+        name: 'Estantería',
+        visualId: 'obstacle.bookcase',
+        cells: [{ x: 0, y: 0 }],
+      },
+    ];
+    definition.characters[0].is_victim = true;
+    definition.clues = [
+      { id: 'general-1', scope: 'GENERAL', text: 'Una pista general.' },
+      {
+        id: 'character-1',
+        scope: 'CHARACTER',
+        characterId: 'personaje-02',
+        text: 'Una pista personal.',
+      },
+    ];
+    delete definition.hints;
+    if (definition.solution) {
+      definition.solution = {
+        murderer_id: definition.solution.killerId,
+        positions: definition.solution.positions,
+      };
+    }
+
+    const dto = plainToInstance(CreateCaseDto, definition);
+
+    expect(await validate(dto)).toHaveLength(0);
+    expect(validateCaseDefinition(dto)).toEqual([]);
+  });
 });

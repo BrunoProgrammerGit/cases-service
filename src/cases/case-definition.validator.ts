@@ -25,7 +25,7 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
         errors.push(`El piso predeterminado '${visuals.floorId}' no pertenece al catálogo visual`);
     }
 
-    const cells = new Map<string, { occupable: boolean; type: string; name?: string }>();
+    const cells = new Map<string, { occupable: boolean; type: string; name?: string; roomId?: string }>();
     for (const c of dto.cells) {
         const key = `${c.x},${c.y}`;
         if (!Number.isInteger(c.x) || !Number.isInteger(c.y) || c.x < 0 || c.y < 0 ||
@@ -43,6 +43,33 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
             errors.push(`El obstáculo '${c.visual.obstacleId}' de la celda (${key}) no pertenece al catálogo visual`);
         }
         cells.set(key, c);
+    }
+    const rooms = new Map((dto.rooms ?? []).map((room) => [room.id, room]));
+    for (const cell of dto.cells) {
+        if (cell.roomId && !rooms.has(cell.roomId)) {
+            errors.push(`La celda (${cell.x},${cell.y}) referencia la sala '${cell.roomId}' inexistente`);
+        }
+    }
+    duplicates((dto.rooms ?? []).map((room) => room.id))
+        .forEach((id) => errors.push(`El id de sala '${id}' está repetido`));
+    for (const wall of dto.walls ?? []) {
+        if (wall.x >= dto.columns || wall.y >= dto.rows) {
+            errors.push(`La pared (${wall.x},${wall.y}) está fuera del tablero`);
+        }
+    }
+    duplicates((dto.walls ?? []).map((wall) => `${wall.x},${wall.y},${wall.side}`))
+        .forEach((wall) => errors.push(`La pared '${wall}' está repetida`));
+    duplicates((dto.objects ?? []).map((object) => object.id))
+        .forEach((id) => errors.push(`El id de objeto '${id}' está repetido`));
+    for (const object of dto.objects ?? []) {
+        if (object.visualId != null && !isCatalogId(object.visualId, OBSTACLE_IDS)) {
+            errors.push(`El visual '${object.visualId}' del objeto '${object.id}' no pertenece al catálogo visual`);
+        }
+        for (const coordinate of object.cells) {
+            if (coordinate.x >= dto.columns || coordinate.y >= dto.rows) {
+                errors.push(`El objeto '${object.id}' tiene una celda fuera del tablero`);
+            }
+        }
     }
     if (validDimensions) {
         if (dto.cells.length !== dto.rows * dto.columns) {
@@ -72,7 +99,12 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
     if (suspects.length < 1) errors.push('Debe haber al menos 1 sospechoso');
 
     duplicates(dto.clues.map((c) => c.id)).forEach((id) => errors.push(`El id de pista '${id}' está repetido`));
-    const levels = dto.hints.map((h) => h.level).sort((a, b) => a - b);
+    for (const clue of dto.clues) {
+        if (clue.scope === 'CHARACTER' && !dto.characters.some((c) => c.id === clue.characterId)) {
+            errors.push(`La pista '${clue.id}' referencia un personaje inexistente`);
+        }
+    }
+    const levels = (dto.hints ?? []).map((h) => h.level).sort((a, b) => a - b);
     if (levels.some((l, i) => l !== i + 1)) {
         errors.push(`Los niveles de ayuda deben ser consecutivos desde 1 (recibidos: ${levels.join(', ')})`);
     }
@@ -83,9 +115,14 @@ export function validateCaseDefinition(dto: CreateCaseDto): string[] {
         return errors;
     }
 
-    const killer = dto.characters.find((c) => c.id === solution.killerId);
+    const killerId = solution.murderer_id ?? solution.killerId;
+    if (!killerId) {
+        errors.push('Falta el identificador del asesino');
+        return errors;
+    }
+    const killer = dto.characters.find((c) => c.id === killerId);
     if (!killer) {
-        errors.push(`El asesino '${solution.killerId}' no corresponde a ningún personaje`);
+        errors.push(`El asesino '${killerId}' no corresponde a ningún personaje`);
     } else if (killer.role !== 'SUSPECT') {
         errors.push(`El asesino '${killer.id}' debe ser un sospechoso, no la víctima`);
     }

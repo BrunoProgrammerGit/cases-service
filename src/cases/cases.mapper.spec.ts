@@ -9,13 +9,21 @@ const caseDocument = {
   difficulty: Difficulty.MEDIUM,
   rows: 1,
   columns: 2,
+  description: 'Un caso de prueba',
+  requiredLevel: 3,
   visuals: { backgroundId: null, floorId: 'floor.grass.plain' },
+  rooms: [{ id: 'room-1', name: 'Patio', floorId: 'floor.grass.plain' }],
+  walls: [{ x: 0, y: 0, side: 'NORTH' }],
+  objects: [
+    { id: 'object-1', type: 'TABLE', name: 'Mesa', cells: [{ x: 1, y: 0 }] },
+  ],
   cells: [
     {
       x: 0,
       y: 0,
       occupable: true,
       type: 'ROOM',
+      roomId: 'room-1',
       name: 'Patio',
       visual: { floorId: 'floor.grass.corner.top_left', obstacleId: null },
     },
@@ -53,7 +61,12 @@ describe('case mappers', () => {
       id: 'caso-001',
       rows: 1,
       columns: 2,
+      description: 'Un caso de prueba',
+      requiredLevel: 3,
       visuals: { backgroundId: null, floorId: 'floor.grass.plain' },
+      rooms: caseDocument.rooms,
+      walls: caseDocument.walls,
+      objects: caseDocument.objects,
       cells: caseDocument.cells,
       characters: caseDocument.characters,
       clues: caseDocument.clues,
@@ -95,6 +108,7 @@ describe('case mappers', () => {
       difficulty: 'MEDIUM',
       rows: 1,
       columns: 2,
+      requiredLevel: 3,
     });
     expect(summary).not.toHaveProperty('cells');
     expect(summary).not.toHaveProperty('characters');

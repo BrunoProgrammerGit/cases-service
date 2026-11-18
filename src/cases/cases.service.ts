@@ -20,7 +20,9 @@ export class CasesService {
         const filter: Record<string, string> = {};
         if (q.category) filter.category = q.category;
         if (q.difficulty) filter.difficulty = q.difficulty;
-        const docs = await this.model.find(filter).select('_id title category difficulty rows columns').lean();
+        const docs = await this.model.find(filter)
+            .select('_id title category difficulty rows columns requiredLevel')
+            .lean();
         return docs.map(toSummary);
     }
 
@@ -46,7 +48,7 @@ export class CasesService {
 
     async create(dto: CreateCaseDto): Promise<CaseDto> {
         this.assertConsistent(dto);
-        const created = await this.model.create(dto);
+        const created = await this.model.create(this.toPersistence(dto));
         return toDetail(created.toObject());
     }
 
@@ -54,7 +56,7 @@ export class CasesService {
         this.assertId(id);
         this.assertConsistent(dto);
         const doc = await this.model
-            .findByIdAndUpdate(id, { $set: dto }, { new: true, runValidators: true })
+            .findByIdAndUpdate(id, { $set: this.toPersistence(dto) }, { new: true, runValidators: true })
             .lean();
         if (!doc) throw new NotFoundException(`Caso ${id} no existe`);
         return toDetail(doc);
@@ -74,6 +76,7 @@ export class CasesService {
         if (!doc.solution) throw new BadRequestException('El caso no tiene una solución configurada');
 
         const expected = doc.solution.positions;
+        const killerId = doc.solution.murderer_id ?? doc.solution.killerId;
         const submitted = new Map(dto.positions.map((p) => [p.characterId, p]));
         const valid =
             submitted.size === expected.length &&
@@ -81,7 +84,7 @@ export class CasesService {
                 const s = submitted.get(e.characterId);
                 return !!s && s.x === e.x && s.y === e.y;
             });
-        return valid ? { valid, killerFound: doc.solution.killerId } : { valid };
+        return valid && killerId ? { valid, killerFound: killerId } : { valid };
     }
 
     private assertConsistent(dto: CreateCaseDto) {
@@ -89,5 +92,23 @@ export class CasesService {
         if (errors.length > 0) {
             throw new BadRequestException({ statusCode: 400, message: 'El caso no es consistente', errors });
         }
+    }
+
+    private toPersistence(dto: CreateCaseDto) {
+        const solution = dto.solution;
+        if (!solution) return dto;
+        const { killerId, murderer_id, ...rest } = solution;
+        return {
+            ...dto,
+            requiredLevel: dto.requiredLevel ?? 1,
+            rooms: dto.rooms ?? [],
+            walls: dto.walls ?? [],
+            objects: dto.objects ?? [],
+            hints: dto.hints ?? [],
+            solution: {
+                ...rest,
+                murderer_id: murderer_id ?? killerId,
+            },
+        };
     }
 }

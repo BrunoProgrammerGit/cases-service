@@ -29,9 +29,43 @@ export class CellDto {
   occupable!: boolean;
   @IsIn(['ROOM', 'FIXED_OBJECT', 'EMPTY'])
   type!: string;
+  @IsOptional() @IsString() @Matches(/\S/) roomId?: string;
   @IsOptional() @IsString() name?: string;
   @IsOptional() @ValidateNested() @Type(() => CellVisualDto)
   visual?: CellVisualDto | null;
+}
+export class RoomDto {
+  @IsString() @IsNotEmpty()
+  id!: string;
+  @IsString() @IsNotEmpty()
+  name!: string;
+  @IsOptional() @IsString() @IsIn(FLOOR_IDS)
+  floorId?: string | null;
+}
+export class WallDto {
+  @IsInt() @Min(0)
+  x!: number;
+  @IsInt() @Min(0)
+  y!: number;
+  @IsIn(['NORTH', 'SOUTH', 'EAST', 'WEST'])
+  side!: string;
+}
+export class ObjectCellDto {
+  @IsInt() @Min(0)
+  x!: number;
+  @IsInt() @Min(0)
+  y!: number;
+}
+export class CaseObjectDto {
+  @IsString() @IsNotEmpty()
+  id!: string;
+  @IsString() @IsNotEmpty()
+  type!: string;
+  @IsOptional() @IsString() name?: string;
+  @IsOptional() @IsString() @IsIn(OBSTACLE_IDS)
+  visualId?: string | null;
+  @IsArray() @ValidateNested({ each: true }) @Type(() => ObjectCellDto)
+  cells!: ObjectCellDto[];
 }
 export class CharacterDto {
   @IsString() @Matches(/\S/)
@@ -43,12 +77,17 @@ export class CharacterDto {
   @IsOptional() @IsString() description?: string;
   @IsOptional() @IsString() @IsIn(CHARACTER_VISUAL_IDS)
   visualId?: string | null;
+  @IsOptional() @IsBoolean() is_victim?: boolean;
 }
 export class ClueDto {
   @IsString() @IsNotEmpty()
   id!: string;
   @IsString() @IsNotEmpty()
   text!: string;
+  @IsOptional() @IsIn(['GENERAL', 'CHARACTER'])
+  scope?: string;
+  @IsOptional() @IsString() @Matches(/\S/)
+  characterId?: string;
 }
 export class HintDto {
   @IsInt() @Min(1)
@@ -72,11 +111,15 @@ export class SolutionDto {
 }
 
 export class FullSolutionDto extends SolutionDto {
-  @IsString() @IsNotEmpty()
-  killerId!: string;
+  @IsOptional() @IsString() @IsNotEmpty()
+  killerId?: string;
+  @IsOptional() @IsString() @IsNotEmpty()
+  murderer_id?: string;
 }
 
 export class CreateCaseDto {
+  @IsOptional() @IsString()
+  description?: string;
   @IsString() @IsNotEmpty()
   title!: string;
   @IsEnum(Category)
@@ -87,16 +130,24 @@ export class CreateCaseDto {
   rows!: number;
   @IsInt() @Min(1) @Max(MAX_BOARD_DIMENSION)
   columns!: number;
+  @IsOptional() @IsInt() @Min(1)
+  requiredLevel?: number;
   @IsArray() @ValidateNested({ each: true }) @Type(() => CellDto)
   cells!: CellDto[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => RoomDto)
+  rooms?: RoomDto[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => WallDto)
+  walls?: WallDto[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => CaseObjectDto)
+  objects?: CaseObjectDto[];
   @IsArray() @ValidateNested({ each: true }) @Type(() => CharacterDto)
   characters!: CharacterDto[];
   @IsOptional() @ValidateNested() @Type(() => CaseVisualsDto)
   visuals?: CaseVisualsDto | null;
   @IsArray() @ValidateNested({ each: true }) @Type(() => ClueDto)
   clues!: ClueDto[];
-  @IsArray() @ValidateNested({ each: true }) @Type(() => HintDto)
-  hints!: HintDto[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => HintDto)
+  hints?: HintDto[];
   @IsDefined() @ValidateNested() @Type(() => FullSolutionDto)
   solution?: FullSolutionDto;
 }
@@ -114,10 +165,15 @@ export class CaseSummaryDto {
   difficulty!: Difficulty;
   rows!: number;
   columns!: number;
+  requiredLevel!: number;
 }
 export class CaseDto extends CaseSummaryDto {
+  description?: string;
   visuals!: CaseVisualsDto;
   cells!: CellDto[];
+  rooms!: RoomDto[];
+  walls!: WallDto[];
+  objects!: CaseObjectDto[];
   characters!: CharacterDto[];
   clues!: ClueDto[];
 }

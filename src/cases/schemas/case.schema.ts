@@ -34,11 +34,59 @@ export class Cell {
     occupable!: boolean;
     @Prop({ enum: ['ROOM', 'FIXED_OBJECT', 'EMPTY'], default: 'EMPTY' })
     type!: string;
+    @Prop({ trim: true })
+    roomId?: string;
     @Prop() name?: string;
     @Prop({ type: CellVisualSchema, default: undefined })
     visual?: CellVisual;
 }
 export const CellSchema = SchemaFactory.createForClass(Cell);
+
+@Schema({ _id: false })
+export class Room {
+    @Prop({ required: true, trim: true })
+    id!: string;
+    @Prop({ required: true, trim: true })
+    name!: string;
+    @Prop({ type: String, enum: [...FLOOR_IDS], default: null })
+    floorId?: string | null;
+}
+export const RoomSchema = SchemaFactory.createForClass(Room);
+
+@Schema({ _id: false })
+export class Wall {
+    @Prop({ required: true })
+    x!: number;
+    @Prop({ required: true })
+    y!: number;
+    @Prop({ required: true, enum: ['NORTH', 'SOUTH', 'EAST', 'WEST'] })
+    side!: string;
+}
+export const WallSchema = SchemaFactory.createForClass(Wall);
+
+@Schema({ _id: false })
+export class ObjectCell {
+    @Prop({ required: true })
+    x!: number;
+    @Prop({ required: true })
+    y!: number;
+}
+export const ObjectCellSchema = SchemaFactory.createForClass(ObjectCell);
+
+@Schema({ _id: false })
+export class CaseObject {
+    @Prop({ required: true, trim: true })
+    id!: string;
+    @Prop({ required: true, trim: true })
+    type!: string;
+    @Prop({ trim: true })
+    name?: string;
+    @Prop({ type: String, enum: [...OBSTACLE_IDS], default: null })
+    visualId?: string | null;
+    @Prop({ type: [ObjectCellSchema], default: [] })
+    cells!: ObjectCell[];
+}
+export const CaseObjectSchema = SchemaFactory.createForClass(CaseObject);
 
 @Schema({ _id: false })
 export class Character {
@@ -51,6 +99,8 @@ export class Character {
     @Prop() description?: string;
     @Prop({ type: String, enum: [...CHARACTER_VISUAL_IDS], default: null })
     visualId?: string | null;
+    @Prop({ type: Boolean, default: undefined })
+    is_victim?: boolean;
 }
 export const CharacterSchema = SchemaFactory.createForClass(Character);
 
@@ -60,6 +110,10 @@ export class Clue {
     id!: string;
     @Prop({ required: true })
     text!: string;
+    @Prop({ enum: ['GENERAL', 'CHARACTER'], default: 'GENERAL' })
+    scope?: string;
+    @Prop({ trim: true })
+    characterId?: string;
 }
 export const ClueSchema = SchemaFactory.createForClass(Clue);
 
@@ -85,8 +139,10 @@ export const PositionSchema = SchemaFactory.createForClass(Position);
 
 @Schema({ _id: false })
 export class Solution {
-    @Prop({ required: true })
-    killerId!: string;
+    @Prop()
+    murderer_id?: string;
+    @Prop()
+    killerId?: string;
     @Prop({ type: [PositionSchema], default: [] })
     positions!: Position[];
 }
@@ -94,6 +150,8 @@ export const SolutionSchema = SchemaFactory.createForClass(Solution);
 
 @Schema({ collection: 'cases', timestamps: true })
 export class CaseEntity {
+    @Prop({ trim: true })
+    description?: string;
     @Prop({ required: true })
     title!: string;
     @Prop({ required: true, enum: Object.values(Category) })
@@ -104,10 +162,18 @@ export class CaseEntity {
     rows!: number;
     @Prop({ required: true })
     columns!: number;
+    @Prop({ type: Number, min: 1, default: 1 })
+    requiredLevel!: number;
     @Prop({ type: CaseVisualsSchema, default: () => ({}) })
     visuals?: CaseVisuals;
     @Prop({ type: [CellSchema], default: [] })
     cells!: Cell[];
+    @Prop({ type: [RoomSchema], default: [] })
+    rooms!: Room[];
+    @Prop({ type: [WallSchema], default: [] })
+    walls!: Wall[];
+    @Prop({ type: [CaseObjectSchema], default: [] })
+    objects!: CaseObject[];
     @Prop({ type: [CharacterSchema], default: [] })
     characters!: Character[];
     @Prop({ type: [ClueSchema], default: [] })

@@ -76,12 +76,32 @@ describe('CasesService', () => {
 
   it('persists and returns all case visuals on creation', async () => {
     model.create.mockResolvedValue({
-      toObject: () => ({ ...definition, _id: 'caso-001' }),
+      toObject: () => ({
+        ...definition,
+        rooms: [],
+        walls: [],
+        objects: [],
+        hints: definition.hints,
+        solution: { murderer_id: 'personaje-02', positions: definition.solution?.positions },
+        requiredLevel: 1,
+        _id: 'caso-001',
+      }),
     });
 
     const result = await service.create(definition);
 
-    expect(model.create).toHaveBeenCalledWith(definition);
+    expect(model.create).toHaveBeenCalledWith({
+      ...definition,
+      requiredLevel: 1,
+      rooms: [],
+      walls: [],
+      objects: [],
+      hints: definition.hints,
+      solution: {
+        positions: definition.solution?.positions,
+        murderer_id: definition.solution?.killerId,
+      },
+    });
     expect(result.visuals).toEqual(definition.visuals);
     expect(result.cells[1].visual).toEqual(definition.cells[1].visual);
     expect(result.characters[0].visualId).toBe('character.woman.tile_0082');
@@ -92,7 +112,16 @@ describe('CasesService', () => {
   it('persists visual changes on edit', async () => {
     const id = '507f1f77bcf86cd799439011';
     const query = {
-      lean: jest.fn().mockResolvedValue({ ...definition, _id: id }),
+      lean: jest.fn().mockResolvedValue({
+        ...definition,
+        rooms: [],
+        walls: [],
+        objects: [],
+        hints: definition.hints,
+        solution: { murderer_id: 'personaje-02', positions: definition.solution?.positions },
+        requiredLevel: 1,
+        _id: id,
+      }),
     };
     model.findByIdAndUpdate.mockReturnValue(query);
 
@@ -100,7 +129,20 @@ describe('CasesService', () => {
 
     expect(model.findByIdAndUpdate).toHaveBeenCalledWith(
       id,
-      { $set: definition },
+      {
+        $set: {
+          ...definition,
+          requiredLevel: 1,
+          rooms: [],
+          walls: [],
+          objects: [],
+          hints: definition.hints,
+          solution: {
+            positions: definition.solution?.positions,
+            murderer_id: definition.solution?.killerId,
+          },
+        },
+      },
       { new: true, runValidators: true },
     );
     expect(result.cells[0].visual?.floorId).toBe('floor.grass.corner.top_left');
@@ -118,6 +160,7 @@ describe('CasesService', () => {
           difficulty: definition.difficulty,
           rows: definition.rows,
           columns: definition.columns,
+          requiredLevel: 1,
         },
       ]),
     };
@@ -127,7 +170,7 @@ describe('CasesService', () => {
 
     expect(model.find).toHaveBeenCalledWith({});
     expect(query.select).toHaveBeenCalledWith(
-      '_id title category difficulty rows columns',
+      '_id title category difficulty rows columns requiredLevel',
     );
     expect(result[0]).toEqual({
       id: 'caso-001',
@@ -136,6 +179,7 @@ describe('CasesService', () => {
       difficulty: definition.difficulty,
       rows: definition.rows,
       columns: definition.columns,
+      requiredLevel: 1,
     });
     expect(result[0]).not.toHaveProperty('cells');
   });
