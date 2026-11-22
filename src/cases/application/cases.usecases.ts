@@ -94,7 +94,7 @@ export class CasesUseCases {
   }
 
   private assertConsistent(definition: CaseDefinition): void {
-    const errors = validateCaseDefinition(definition);
+    const errors = validateCaseDefinition(definition, true);
     if (errors.length > 0) {
       throw new BadRequestException({
         statusCode: 400,

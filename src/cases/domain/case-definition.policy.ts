@@ -1,12 +1,13 @@
 import { MAX_BOARD_DIMENSION } from '../case.constants';
 import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS, isCatalogId } from '../visual-catalog';
 import { CaseDefinition, Category, Difficulty } from './case.model';
+import { validateUniqueCaseSolution } from './case-uniqueness.policy';
 
 const duplicates = (values: string[]): string[] =>
     [...new Set(values.filter((v, i) => values.indexOf(v) !== i))];
 
 
-export function validateCaseDefinition(dto: CaseDefinition): string[] {
+export function validateCaseDefinition(dto: CaseDefinition, requireUniqueSolution = false): string[] {
     const errors: string[] = [];
 
     if (!Object.values(Category).includes(dto.category)) {
@@ -209,5 +210,8 @@ export function validateCaseDefinition(dto: CaseDefinition): string[] {
         usedColumns.add(p.x);
     }
 
+    if (requireUniqueSolution && errors.length === 0) {
+        errors.push(...validateUniqueCaseSolution(dto));
+    }
     return errors;
 }

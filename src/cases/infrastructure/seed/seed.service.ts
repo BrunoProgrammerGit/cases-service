@@ -28,7 +28,7 @@ export class SeedService implements OnModuleInit {
 
     for (const c of cases) {
       if (!c.seedKey?.trim()) throw new Error(`Caso sin seedKey: '${c.title}'`);
-      const errors = validateCaseDefinition(c);
+      const errors = validateCaseDefinition(c, true);
       if (errors.length > 0) {
         throw new Error(`Caso semilla inválido '${c.title}': ${errors.join('; ')}`);
       }

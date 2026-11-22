@@ -21,6 +21,19 @@ describe('case structural model', () => {
     for (const seed of SEED_CASES) expect(errors(seed)).toEqual([]);
   });
 
+  it('proves each catalog case has exactly one clue-consistent solution', () => {
+    for (const seed of SEED_CASES) {
+      const errors = validateCaseDefinition(seed, true);
+      if (errors.length > 0) throw new Error(`${seed.title}: ${errors.join('; ')}`);
+    }
+  });
+
+  it('rejects an ambiguous case instead of trusting its stored answer', () => {
+    const dto = copy(SEED_CASES.find((seed) => seed.title === 'Misterio en el hotel alpino')!);
+    dto.clues = dto.clues.filter((clue) => clue.id !== 'hotel-gabriel-uniqueness-1');
+    expect(validateCaseDefinition(dto, true)).toContain('El caso admite más de una solución');
+  });
+
   it('covers the four required library categories and board sizes', () => {
     for (const category of ['HOGAR', 'OFICINAS', 'TRABAJO', 'TURISTICO']) {
       expect(SEED_CASES.filter((seed) => seed.category === category).length).toBeGreaterThanOrEqual(3);

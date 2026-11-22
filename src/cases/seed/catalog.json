@@ -3119,6 +3119,12 @@
         "scope": "CHARACTER",
         "characterId": "hotel-valentina",
         "text": "Estaba en una cama."
+      },
+      {
+        "id": "hotel-gabriel-uniqueness-1",
+        "scope": "CHARACTER",
+        "characterId": "hotel-gabriel",
+        "text": "Estaba en la fila 4."
       }
     ],
     "solution": {
@@ -7978,6 +7984,18 @@
         "scope": "CHARACTER",
         "characterId": "refugio-lucia",
         "text": "Estaba junto a una estatua."
+      },
+      {
+        "id": "refugio-valeria-uniqueness-1",
+        "scope": "CHARACTER",
+        "characterId": "refugio-valeria",
+        "text": "Estaba en la columna 6."
+      },
+      {
+        "id": "refugio-andres-uniqueness-2",
+        "scope": "CHARACTER",
+        "characterId": "refugio-andres",
+        "text": "Estaba en la columna 4."
       }
     ],
     "solution": {
@@ -12023,6 +12041,12 @@
         "scope": "CHARACTER",
         "characterId": "tren-sofia",
         "text": "Estaba junto a una caja."
+      },
+      {
+        "id": "tren-clara-uniqueness-1",
+        "scope": "CHARACTER",
+        "characterId": "tren-clara",
+        "text": "Estaba en la columna 1."
       }
     ],
     "solution": {
@@ -12123,11 +12147,6 @@
         "id": "courtyard",
         "name": "Jardín del Claustro",
         "floorId": "floor.grass.detail.flowers"
-      },
-      {
-        "id": "courtyard-annex",
-        "name": "Jardín del claustro (anexo)",
-        "floorId": "floor.grass.detail.flowers"
       }
     ],
     "cells": [
@@ -12218,7 +12237,7 @@
         "y": 1,
         "occupable": true,
         "type": "ROOM",
-        "roomId": "courtyard-annex"
+        "roomId": "sculpture-hall"
       },
       {
         "x": 4,
@@ -17118,6 +17137,12 @@
         "scope": "CHARACTER",
         "characterId": "hotel-ada",
         "text": "Estaba junto a un arbusto."
+      },
+      {
+        "id": "hotel-lorenzo-uniqueness-1",
+        "scope": "CHARACTER",
+        "characterId": "hotel-lorenzo",
+        "text": "Estaba en la fila 5."
       }
     ],
     "solution": {
@@ -29757,6 +29782,18 @@
         "scope": "CHARACTER",
         "characterId": "orbita-lucas",
         "text": "Estaba junto a un carro."
+      },
+      {
+        "id": "orbita-arturo-uniqueness-1",
+        "scope": "CHARACTER",
+        "characterId": "orbita-arturo",
+        "text": "Estaba en la fila 8."
+      },
+      {
+        "id": "orbita-arturo-uniqueness-2",
+        "scope": "CHARACTER",
+        "characterId": "orbita-arturo",
+        "text": "Estaba en la columna 6."
       }
     ],
     "solution": {

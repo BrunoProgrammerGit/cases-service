@@ -20,7 +20,12 @@ const definition: CaseDefinition = {
     { id: 'personaje-01', name: 'Elena Cruz', role: 'VICTIM', visualId: 'character.woman.tile_0082' },
     { id: 'personaje-02', name: 'Marco Ruiz', role: 'SUSPECT', visualId: 'character.man.tile_0070' },
   ],
-  clues: [{ id: 'pista-01', text: 'Una pista' }],
+  clues: [
+    { id: 'pista-victima-fila', text: 'Estaba en la fila 1.', scope: 'CHARACTER', characterId: 'personaje-01' },
+    { id: 'pista-victima-columna', text: 'Estaba en la columna 1.', scope: 'CHARACTER', characterId: 'personaje-01' },
+    { id: 'pista-sospechoso-fila', text: 'Estaba en la fila 2.', scope: 'CHARACTER', characterId: 'personaje-02' },
+    { id: 'pista-sospechoso-columna', text: 'Estaba en la columna 2.', scope: 'CHARACTER', characterId: 'personaje-02' },
+  ],
   hints: [{ level: 1, text: 'Una ayuda' }],
   solution: {
     killerId: 'personaje-02',
