@@ -17,6 +17,9 @@ const contentType = 'text/plain; version=0.0.4; charset=utf-8';
 @Injectable()
 export class HttpMetricsService {
   private readonly samples = new Map<string, RequestSample>();
+  private readonly requestTotals = new Map<string, number>();
+  private readonly eventTotals = new Map<string, number>();
+  private sagasPending = 0;
 
   observeRequest(method: string, uri: string, status: number, durationSeconds: number): void {
     const labels = { method, uri, status: String(status) };
@@ -35,6 +38,8 @@ export class HttpMetricsService {
       if (duration <= upperBound) sample.buckets[index] += 1;
     });
     this.samples.set(key, sample);
+    const totalLabels = `{application="cases-service",method="${escapeLabel(method)}",uri="${escapeLabel(uri)}",status="${escapeLabel(String(status))}"}`;
+    this.requestTotals.set(totalLabels, (this.requestTotals.get(totalLabels) ?? 0) + 1);
   }
 
   metrics(): string {
@@ -52,6 +57,19 @@ export class HttpMetricsService {
       lines.push(`${metricName}_sum{${baseLabels}} ${sample.sum}`);
       lines.push(`${metricName}_count{${baseLabels}} ${sample.count}`);
     }
+    lines.push('# HELP http_requests_total Completed HTTP requests');
+    lines.push('# TYPE http_requests_total counter');
+    for (const [key, value] of this.requestTotals) {
+      lines.push(`http_requests_total${key} ${value}`);
+    }
+    lines.push('# HELP events_processed_total Messaging events processed');
+    lines.push('# TYPE events_processed_total counter');
+    for (const [key, value] of this.eventTotals) {
+      lines.push(`events_processed_total${key} ${value}`);
+    }
+    lines.push('# HELP sagas_pending Matches waiting for a terminal saga outcome');
+    lines.push('# TYPE sagas_pending gauge');
+    lines.push(`sagas_pending ${this.sagasPending}`);
 
     return `${lines.join('\n')}\n`;
   }

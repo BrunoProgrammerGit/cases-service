@@ -22,6 +22,11 @@ async function bootstrap() {
     .setTitle('casos-service')
     .setDescription('Biblioteca de casos, tablero y validación de Death-Doku')
     .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'bearer',
+    )
+    .addSecurityRequirements('bearer')
     .build();
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, doc));
 
