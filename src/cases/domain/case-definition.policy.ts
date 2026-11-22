@@ -1,6 +1,6 @@
 import { MAX_BOARD_DIMENSION } from '../case.constants';
 import { BACKGROUND_IDS, CHARACTER_VISUAL_IDS, FLOOR_IDS, OBSTACLE_IDS, isCatalogId } from '../visual-catalog';
-import { CaseDefinition } from './case.model';
+import { CaseDefinition, Category, Difficulty } from './case.model';
 
 const duplicates = (values: string[]): string[] =>
     [...new Set(values.filter((v, i) => values.indexOf(v) !== i))];
@@ -8,6 +8,13 @@ const duplicates = (values: string[]): string[] =>
 
 export function validateCaseDefinition(dto: CaseDefinition): string[] {
     const errors: string[] = [];
+
+    if (!Object.values(Category).includes(dto.category)) {
+        errors.push(`La categoría '${dto.category}' no está soportada`);
+    }
+    if (!Object.values(Difficulty).includes(dto.difficulty)) {
+        errors.push(`La dificultad '${dto.difficulty}' no está soportada`);
+    }
 
     const validDimensions =
         Number.isInteger(dto.rows) && Number.isInteger(dto.columns) &&

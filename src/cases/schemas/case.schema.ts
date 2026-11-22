@@ -150,6 +150,10 @@ export const SolutionSchema = SchemaFactory.createForClass(Solution);
 
 @Schema({ collection: 'cases', timestamps: true })
 export class CaseEntity {
+    @Prop({ type: String, trim: true })
+    seedKey?: string;
+    @Prop({ type: Boolean, default: false, index: true })
+    isTutorial!: boolean;
     @Prop({ trim: true })
     description?: string;
     @Prop({ required: true })
@@ -185,3 +189,4 @@ export class CaseEntity {
 
 export type CaseDocument = HydratedDocument<CaseEntity>;
 export const CaseSchema = SchemaFactory.createForClass(CaseEntity);
+CaseSchema.index({ seedKey: 1 }, { unique: true, sparse: true });

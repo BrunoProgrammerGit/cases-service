@@ -4,6 +4,7 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
+    "assets": ["cases/seed/catalog.json"],
     "plugins": ["@nestjs/swagger"]
   }
 }

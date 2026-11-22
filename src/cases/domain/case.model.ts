@@ -3,16 +3,41 @@ export enum Category {
   OFICINAS = 'OFICINAS',
   TRABAJO = 'TRABAJO',
   TURISTICO = 'TURISTICO',
+  EXTERIORES = 'EXTERIORES',
+  MUSEO = 'MUSEO',
+  MISTERIO = 'MISTERIO',
+  HOTEL = 'HOTEL',
+  TRANSPORTE = 'TRANSPORTE',
+  TURISMO = 'TURISMO',
+  MANSION = 'MANSION',
+  OCIO = 'OCIO',
+  CIENCIA = 'CIENCIA',
+  CULTURA = 'CULTURA',
+  CAMPO = 'CAMPO',
+  HISTORIA = 'HISTORIA',
+  ESPIONAJE = 'ESPIONAJE',
+  'NÁUTICA' = 'NÁUTICA',
+  AVENTURA = 'AVENTURA',
+  CRIMEN = 'CRIMEN',
+  CINE = 'CINE',
+  ESPACIO = 'ESPACIO',
 }
 
 export enum Difficulty {
   EASY = 'EASY',
   MEDIUM = 'MEDIUM',
   HARD = 'HARD',
+  EXPERT = 'EXPERT',
 }
 
 export const requiredLevelForDifficulty = (difficulty: Difficulty): number =>
-  difficulty === Difficulty.EASY ? 1 : difficulty === Difficulty.MEDIUM ? 5 : 10;
+  difficulty === Difficulty.EASY
+    ? 1
+    : difficulty === Difficulty.MEDIUM
+      ? 5
+      : difficulty === Difficulty.HARD
+        ? 10
+        : 15;
 
 export interface CasePosition {
   characterId: string;
