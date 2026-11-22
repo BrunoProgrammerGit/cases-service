@@ -197,10 +197,16 @@ export function validateCaseDefinition(dto: CaseDefinition): string[] {
     }
 
     const used = new Set<string>();
+    const usedRows = new Set<number>();
+    const usedColumns = new Set<number>();
     for (const p of solution.positions) {
         const key = `${p.x},${p.y}`;
         if (used.has(key)) errors.push(`Dos personajes comparten la casilla (${key})`);
         used.add(key);
+        if (usedRows.has(p.y)) errors.push(`Dos personajes comparten la fila ${p.y + 1}`);
+        usedRows.add(p.y);
+        if (usedColumns.has(p.x)) errors.push(`Dos personajes comparten la columna ${p.x + 1}`);
+        usedColumns.add(p.x);
     }
 
     return errors;

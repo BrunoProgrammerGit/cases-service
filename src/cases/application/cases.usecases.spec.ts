@@ -7,12 +7,14 @@ const definition: CaseDefinition = {
   title: 'Caso de prueba',
   category: Category.HOGAR,
   difficulty: Difficulty.MEDIUM,
-  rows: 1,
+  rows: 2,
   columns: 2,
   visuals: { backgroundId: null, floorId: 'floor.grass.plain' },
   cells: [
     { x: 0, y: 0, occupable: true, type: 'ROOM', visual: { floorId: 'floor.grass.corner.top_left' } },
     { x: 1, y: 0, occupable: true, type: 'ROOM', visual: { floorId: 'floor.grass.center' } },
+    { x: 0, y: 1, occupable: true, type: 'ROOM', visual: { floorId: 'floor.grass.center' } },
+    { x: 1, y: 1, occupable: true, type: 'ROOM', visual: { floorId: 'floor.grass.center' } },
   ],
   characters: [
     { id: 'personaje-01', name: 'Elena Cruz', role: 'VICTIM', visualId: 'character.woman.tile_0082' },
@@ -24,7 +26,7 @@ const definition: CaseDefinition = {
     killerId: 'personaje-02',
     positions: [
       { characterId: 'personaje-01', x: 0, y: 0 },
-      { characterId: 'personaje-02', x: 1, y: 0 },
+      { characterId: 'personaje-02', x: 1, y: 1 },
     ],
   },
 };

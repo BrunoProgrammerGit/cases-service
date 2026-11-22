@@ -1157,7 +1157,7 @@
   {
     "title": "Escándalo en la galería",
     "description": "Durante una exhibición nocturna,  uno de los invitados aparece sin vida frente a las obras.",
-    "category": "MUSEO",
+    "category": "TURISTICO",
     "difficulty": "EASY",
     "requiredLevel": 1,
     "rows": 5,
@@ -3995,7 +3995,7 @@
   {
     "title": "Intriga en la villa de verano",
     "description": "Junto a la piscina y los jardines privados,  alguien aprovechó la siesta para cometer el crimen.",
-    "category": "TURISMO",
+    "category": "HOGAR",
     "difficulty": "MEDIUM",
     "requiredLevel": 5,
     "rows": 6,
@@ -4809,7 +4809,7 @@
   {
     "title": "Asesinato entre dos casas",
     "description": "Dos viviendas vecinas divididas por una calle estrecha donde quedó la víctima.",
-    "category": "EXTERIORES",
+    "category": "HOGAR",
     "difficulty": "MEDIUM",
     "requiredLevel": 5,
     "rows": 6,
@@ -5643,7 +5643,7 @@
   {
     "title": "Misterio en la mansión de mármol",
     "description": "Una recepción de gala termina en silencio entre los salones de mármol y el invernadero.",
-    "category": "MANSION",
+    "category": "HOGAR",
     "difficulty": "MEDIUM",
     "requiredLevel": 5,
     "rows": 6,
@@ -13122,7 +13122,7 @@
   {
     "title": "Muerte en la Hacienda Cafetera",
     "description": "Al caer la tarde en la finca,  el hacendado aparece sin vida entre los arbustos del cafetal.",
-    "category": "CAMPO",
+    "category": "TRABAJO",
     "difficulty": "HARD",
     "requiredLevel": 10,
     "rows": 7,
@@ -16183,7 +16183,7 @@
   {
     "title": "Engaño en el Hotel Resort",
     "description": "En medio de una exclusiva fiesta junto a la piscina,  el magnate aparece sin vida en el jardín tropical.",
-    "category": "TURISMO",
+    "category": "TURISTICO",
     "difficulty": "HARD",
     "requiredLevel": 10,
     "rows": 7,
@@ -17180,7 +17180,7 @@
   {
     "title": "Intriga en la Embajada",
     "description": "Durante la recepción diplomática nocturna,  el canciller aparece sin vida en los jardines de la embajada.",
-    "category": "ESPIONAJE",
+    "category": "OFICINAS",
     "difficulty": "EXPERT",
     "requiredLevel": 15,
     "rows": 8,
@@ -19708,7 +19708,7 @@
   {
     "title": "Asesinato en el Crucero Imperial",
     "description": "En mitad de la travesía nocturna por el Atlántico,  el naviero aparece sin vida en la cubierta de paseo.",
-    "category": "NÁUTICA",
+    "category": "TURISTICO",
     "difficulty": "EXPERT",
     "requiredLevel": 15,
     "rows": 8,
@@ -23475,7 +23475,7 @@
   {
     "title": "Golpe Mortal en el Banco Central",
     "description": "Tras cerrar las compuertas blindadas de la reserva federal, el banquero aparece sin vida en el garaje blindado.",
-    "category": "CRIMEN",
+    "category": "TRABAJO",
     "difficulty": "EXPERT",
     "requiredLevel": 15,
     "rows": 8,
@@ -25953,7 +25953,7 @@
   {
     "title": "Crimen en los Estudios Lumière",
     "description": "Tras rodar la última escena nocturna de la superproducción, el director aparece sin vida en los exteriores de rodaje.",
-    "category": "CINE",
+    "category": "TRABAJO",
     "difficulty": "EXPERT",
     "requiredLevel": 15,
     "rows": 8,
@@ -28454,8 +28454,8 @@
     "category": "ESPACIO",
     "difficulty": "EXPERT",
     "requiredLevel": 15,
-    "rows": 8,
-    "columns": 8,
+    "rows": 9,
+    "columns": 9,
     "visuals": {
       "floorId": "floor.blue.center"
     },
@@ -29001,6 +29001,125 @@
         "visual": {
           "obstacleId": "obstacle.car"
         }
+      },
+      {
+        "x": 0,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 1,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 2,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 3,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 4,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 6,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 7,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 8,
+        "y": 0,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "comms-array"
+      },
+      {
+        "x": 8,
+        "y": 1,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "comms-array"
+      },
+      {
+        "x": 8,
+        "y": 2,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "comms-array"
+      },
+      {
+        "x": 8,
+        "y": 3,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "reactor-core"
+      },
+      {
+        "x": 8,
+        "y": 4,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "reactor-core"
+      },
+      {
+        "x": 8,
+        "y": 5,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "reactor-core"
+      },
+      {
+        "x": 8,
+        "y": 6,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 8,
+        "y": 7,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
+      },
+      {
+        "x": 8,
+        "y": 8,
+        "occupable": true,
+        "type": "ROOM",
+        "roomId": "shuttle-hangar"
       }
     ],
     "walls": [
@@ -29046,46 +29165,6 @@
       },
       {
         "x": 0,
-        "y": 7,
-        "side": "SOUTH"
-      },
-      {
-        "x": 1,
-        "y": 7,
-        "side": "SOUTH"
-      },
-      {
-        "x": 2,
-        "y": 7,
-        "side": "SOUTH"
-      },
-      {
-        "x": 3,
-        "y": 7,
-        "side": "SOUTH"
-      },
-      {
-        "x": 4,
-        "y": 7,
-        "side": "SOUTH"
-      },
-      {
-        "x": 5,
-        "y": 7,
-        "side": "SOUTH"
-      },
-      {
-        "x": 6,
-        "y": 7,
-        "side": "SOUTH"
-      },
-      {
-        "x": 7,
-        "y": 7,
-        "side": "SOUTH"
-      },
-      {
-        "x": 0,
         "y": 0,
         "side": "WEST"
       },
@@ -29125,179 +29204,229 @@
         "side": "WEST"
       },
       {
-        "x": 7,
+        "x": 1,
         "y": 0,
         "side": "EAST"
       },
       {
-        "x": 7,
+        "x": 5,
+        "y": 0,
+        "side": "EAST"
+      },
+      {
+        "x": 1,
         "y": 1,
         "side": "EAST"
       },
       {
-        "x": 7,
+        "x": 5,
+        "y": 1,
+        "side": "EAST"
+      },
+      {
+        "x": 1,
         "y": 2,
         "side": "EAST"
       },
       {
-        "x": 7,
+        "x": 5,
+        "y": 2,
+        "side": "EAST"
+      },
+      {
+        "x": 1,
         "y": 3,
         "side": "EAST"
       },
       {
-        "x": 7,
+        "x": 5,
+        "y": 3,
+        "side": "EAST"
+      },
+      {
+        "x": 1,
         "y": 4,
         "side": "EAST"
       },
       {
-        "x": 7,
+        "x": 5,
+        "y": 4,
+        "side": "EAST"
+      },
+      {
+        "x": 5,
         "y": 5,
         "side": "EAST"
       },
       {
+        "x": 0,
+        "y": 1,
+        "side": "SOUTH"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "side": "SOUTH"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "side": "SOUTH"
+      },
+      {
+        "x": 3,
+        "y": 1,
+        "side": "SOUTH"
+      },
+      {
+        "x": 4,
+        "y": 1,
+        "side": "SOUTH"
+      },
+      {
+        "x": 5,
+        "y": 1,
+        "side": "SOUTH"
+      },
+      {
+        "x": 6,
+        "y": 2,
+        "side": "SOUTH"
+      },
+      {
         "x": 7,
+        "y": 2,
+        "side": "SOUTH"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "side": "SOUTH"
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "side": "SOUTH"
+      },
+      {
+        "x": 4,
+        "y": 3,
+        "side": "SOUTH"
+      },
+      {
+        "x": 5,
+        "y": 3,
+        "side": "SOUTH"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "side": "SOUTH"
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "side": "SOUTH"
+      },
+      {
+        "x": 6,
+        "y": 5,
+        "side": "SOUTH"
+      },
+      {
+        "x": 7,
+        "y": 5,
+        "side": "SOUTH"
+      },
+      {
+        "x": 0,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 1,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 2,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 3,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 4,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 6,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 7,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 8,
+        "y": 8,
+        "side": "SOUTH"
+      },
+      {
+        "x": 8,
+        "y": 0,
+        "side": "EAST"
+      },
+      {
+        "x": 8,
+        "y": 1,
+        "side": "EAST"
+      },
+      {
+        "x": 8,
+        "y": 2,
+        "side": "EAST"
+      },
+      {
+        "x": 8,
+        "y": 3,
+        "side": "EAST"
+      },
+      {
+        "x": 8,
+        "y": 4,
+        "side": "EAST"
+      },
+      {
+        "x": 8,
+        "y": 5,
+        "side": "EAST"
+      },
+      {
+        "x": 8,
         "y": 6,
         "side": "EAST"
       },
       {
-        "x": 7,
+        "x": 8,
         "y": 7,
         "side": "EAST"
       },
       {
-        "x": 1,
-        "y": 0,
+        "x": 8,
+        "y": 8,
         "side": "EAST"
-      },
-      {
-        "x": 5,
-        "y": 0,
-        "side": "EAST"
-      },
-      {
-        "x": 1,
-        "y": 1,
-        "side": "EAST"
-      },
-      {
-        "x": 5,
-        "y": 1,
-        "side": "EAST"
-      },
-      {
-        "x": 1,
-        "y": 2,
-        "side": "EAST"
-      },
-      {
-        "x": 5,
-        "y": 2,
-        "side": "EAST"
-      },
-      {
-        "x": 1,
-        "y": 3,
-        "side": "EAST"
-      },
-      {
-        "x": 5,
-        "y": 3,
-        "side": "EAST"
-      },
-      {
-        "x": 1,
-        "y": 4,
-        "side": "EAST"
-      },
-      {
-        "x": 5,
-        "y": 4,
-        "side": "EAST"
-      },
-      {
-        "x": 5,
-        "y": 5,
-        "side": "EAST"
-      },
-      {
-        "x": 0,
-        "y": 1,
-        "side": "SOUTH"
-      },
-      {
-        "x": 1,
-        "y": 1,
-        "side": "SOUTH"
-      },
-      {
-        "x": 2,
-        "y": 1,
-        "side": "SOUTH"
-      },
-      {
-        "x": 3,
-        "y": 1,
-        "side": "SOUTH"
-      },
-      {
-        "x": 4,
-        "y": 1,
-        "side": "SOUTH"
-      },
-      {
-        "x": 5,
-        "y": 1,
-        "side": "SOUTH"
-      },
-      {
-        "x": 6,
-        "y": 2,
-        "side": "SOUTH"
-      },
-      {
-        "x": 7,
-        "y": 2,
-        "side": "SOUTH"
-      },
-      {
-        "x": 2,
-        "y": 3,
-        "side": "SOUTH"
-      },
-      {
-        "x": 3,
-        "y": 3,
-        "side": "SOUTH"
-      },
-      {
-        "x": 4,
-        "y": 3,
-        "side": "SOUTH"
-      },
-      {
-        "x": 5,
-        "y": 3,
-        "side": "SOUTH"
-      },
-      {
-        "x": 0,
-        "y": 4,
-        "side": "SOUTH"
-      },
-      {
-        "x": 1,
-        "y": 4,
-        "side": "SOUTH"
-      },
-      {
-        "x": 6,
-        "y": 5,
-        "side": "SOUTH"
-      },
-      {
-        "x": 7,
-        "y": 5,
-        "side": "SOUTH"
       }
     ],
     "objects": [

@@ -12,13 +12,31 @@ const board = (rows: number, columns: number): CreateCaseDto => ({
   title: 'Fixture', category: 'HOGAR' as any, difficulty: 'EASY' as any, rows, columns,
   cells: Array.from({ length: rows * columns }, (_, i) => ({ x: i % columns, y: Math.floor(i / columns), occupable: true, type: 'ROOM', roomId: 'room-main' })),
   characters: [{ id: 'v', name: 'Victim', role: 'VICTIM' }, { id: 's', name: 'Suspect', role: 'SUSPECT' }],
-  clues: [], hints: [], solution: { killerId: 's', positions: [{ characterId: 'v', x: 0, y: 0 }, { characterId: 's', x: 1, y: 0 }] },
+  clues: [], hints: [], solution: { killerId: 's', positions: [{ characterId: 'v', x: 0, y: 0 }, { characterId: 's', x: 1, y: 1 }] },
 });
 
 describe('case structural model', () => {
-  it('accepts all four unchanged legacy seeds', () => {
-    expect(SEED_CASES).toHaveLength(4);
+  it('accepts all catalog seeds loaded by the application', () => {
+    expect(SEED_CASES).toHaveLength(30);
     for (const seed of SEED_CASES) expect(errors(seed)).toEqual([]);
+  });
+
+  it('covers the four required library categories and board sizes', () => {
+    for (const category of ['HOGAR', 'OFICINAS', 'TRABAJO', 'TURISTICO']) {
+      expect(SEED_CASES.filter((seed) => seed.category === category).length).toBeGreaterThanOrEqual(3);
+    }
+    for (const size of [6, 8, 9]) {
+      expect(SEED_CASES.some((seed) => seed.rows === size && seed.columns === size)).toBe(true);
+    }
+  });
+
+  it('rejects a solution that places two characters in one row or column', () => {
+    const dto = copy(board(3, 3));
+    dto.solution!.positions[1].y = 0;
+    expect(errors(dto)).toContain('Dos personajes comparten la fila 1');
+    dto.solution!.positions[1].y = 1;
+    dto.solution!.positions[1].x = 0;
+    expect(errors(dto)).toContain('Dos personajes comparten la columna 1');
   });
 
   it.each([[9, 9], [6, 8]])('accepts complete %ix%i boards', (rows, columns) => {
@@ -44,20 +62,20 @@ describe('case structural model', () => {
       { id: 'table', type: 'TABLE', cells: [{ x: 0, y: 0 }, { x: 1, y: 0 }] },
     ];
     expect(errors(dto)).toEqual([]);
-    dto.cells[2].occupable = false;
+    dto.cells.find((cell) => cell.x === 2 && cell.y === 1)!.occupable = false;
     dto.solution!.positions[1].x = 2;
     expect(errors(dto).some((e) => e.includes('no ocupable'))).toBe(true);
   });
 
   it('supports variable character counts, general and character clues, and legacy clues', () => {
-    const dto = copy(SEED_CASES[0]);
-    dto.characters.push({ id: 'S4', name: 'Extra', role: 'SUSPECT' });
+    const dto = board(6, 6);
+    dto.characters.push({ id: 'extra', name: 'Extra', role: 'SUSPECT' });
     const extraCell = dto.cells.find((cell) => cell.x === 2 && cell.y === 2)!;
     extraCell.type = 'ROOM';
     extraCell.occupable = true;
-    dto.solution!.positions.push({ characterId: 'S4', x: 2, y: 2 });
+    dto.solution!.positions.push({ characterId: 'extra', x: 2, y: 2 });
     dto.clues.push({ id: 'general', text: 'Global', scope: 'GENERAL' });
-    dto.clues.push({ id: 'individual', text: 'Personal', scope: 'CHARACTER', characterId: 'S1' });
+    dto.clues.push({ id: 'individual', text: 'Personal', scope: 'CHARACTER', characterId: 's' });
     expect(errors(dto)).toEqual([]);
   });
 

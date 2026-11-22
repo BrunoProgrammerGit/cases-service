@@ -26,7 +26,7 @@ const validCase = (): CreateCaseDto => ({
     },
     { x: 1, y: 0, occupable: false, type: 'FIXED_OBJECT' },
     { x: 0, y: 1, occupable: true, type: 'ROOM' },
-    { x: 1, y: 1, occupable: false, type: 'EMPTY' },
+    { x: 1, y: 1, occupable: true, type: 'ROOM' },
   ],
   characters: [
     {
@@ -48,7 +48,7 @@ const validCase = (): CreateCaseDto => ({
     killerId: 'personaje-02',
     positions: [
       { characterId: 'personaje-01', x: 0, y: 0 },
-      { characterId: 'personaje-02', x: 0, y: 1 },
+      { characterId: 'personaje-02', x: 1, y: 1 },
     ],
   },
 });
